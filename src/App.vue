@@ -1,13 +1,28 @@
-<template lang="">
-  <div>
-    hello dappa
+<template>
+  <div class="container app">
+    <Navbar />
+    <Main/>
   </div>
 </template>
+
 <script>
+import { defineAsyncComponent } from 'vue'
+
 export default {
-  
+  components: {
+    Navbar: defineAsyncComponent(() =>
+      import('./components/Navbar.vue')
+    ),
+    Main: defineAsyncComponent(() =>
+      import('./components/Main.vue')
+    ) 
+  }
 }
 </script>
-<style lang="">
-  
+<style >
+.app{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 </style>
