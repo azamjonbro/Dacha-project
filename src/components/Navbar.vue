@@ -89,10 +89,11 @@ export default {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 999;
 }
 
 .modal {
@@ -103,6 +104,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
 }
 
 .modal input,

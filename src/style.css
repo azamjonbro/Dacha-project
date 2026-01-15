@@ -49,3 +49,165 @@ button:hover{
     padding: 0 10px;
   }
 }
+
+
+
+.page {
+  width: 100%;
+  padding: 10px;
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid #e5e7eb75;
+  border-radius: 8px;
+}
+.right{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.icons{
+    display: flex;
+    gap: 10px;
+}
+.icons img{
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* CARD */
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #484848;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+.card-left h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.card-left p {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.card-left .band {
+  color: #dc2626;
+}
+.card-left .bosh {
+  color: #16a34a;
+}
+
+/* BUTTON */
+.next,
+.prev,
+.primary-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* CALENDAR */
+.calendar-card {
+  background: #525252;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.calendar-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* WEEKDAYS */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+/* DAYS GRID */
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+  color: #000;
+  position: relative;
+}
+.day:hover {
+  transform: translateY(-2px);
+}
+
+/* DAY STATES */
+.day.band {
+  background: #f6abab;
+  color: #991b1b;
+}
+.day.bosh {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.day-number {
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.day small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.empty {
+  visibility: hidden;
+}
+
+@media (max-width: 500px) {
+  .day {
+    background: #f9fafb;
+    border-radius: 10px;
+    width: 100%;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+    color: #000;
+    position: relative;
+  }
+}

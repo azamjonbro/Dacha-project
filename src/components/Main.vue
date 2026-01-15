@@ -1,28 +1,23 @@
 <template>
-  <div class="page">
-    <!-- DACHA INFO -->
+  <div class="page" @click.self="activeDay = null">
+    <!-- INFO CARD -->
     <div class="card">
-      <div class="card-left">
-        <h2>Istambul</h2>
-        <p :class="todayStatus.status">
+      <div>
+        <h2 class="title">Istanbul</h2>
+        <p class="status" :class="todayStatus.status">
           Bugun: {{ todayStatus.status.toUpperCase() }}
         </p>
       </div>
-      <div class="right">
-          <div class="icons">
-            <img src="../assets/trash.svg" loading="lazy" alt="this is trash icon" />
-            <img src="../assets/edit-2.svg" loading="lazy" alt="this is edit icon" />
-          </div>
-          <button class="primary-btn">Band qilish</button>
-      </div>
+
+      <button class="primary-btn">Band qilish</button>
     </div>
 
     <!-- CALENDAR -->
     <div class="calendar-card">
       <div class="calendar-header">
-        <div class="prev" @click="prevMonth">‹</div>
+        <span @click="prevMonth">‹</span>
         <h3>{{ monthName }} {{ year }}</h3>
-        <div class="next" @click="nextMonth">›</div>
+        <span @click="nextMonth">›</span>
       </div>
 
       <div class="weekdays">
@@ -30,16 +25,31 @@
       </div>
 
       <div class="days">
-        <span v-for="n in blanks" :key="'b' + n" class="empty"></span>
+        <span v-for="n in blanks" :key="'b'+n"></span>
 
         <div
           v-for="day in monthDays"
           :key="day"
           class="day"
           :class="getDayStatus(day).status"
-          @click="selectDay(day)"
+          @click.stop="toggleTooltip(day)"
         >
-          <span class="day-number">{{ day }}</span>
+          {{ day }}
+
+          <!-- TOOLTIP -->
+          <div v-if="activeDay === day" class="tooltip">
+            <template v-if="getDayStatus(day).status === 'band'">
+              <strong>❌ Band</strong>
+              <p>👤 {{ getBookingInfo(day).by }}</p>
+              <p>📅 {{ getBookingInfo(day).from }} → {{ getBookingInfo(day).to }}</p>
+            </template>
+
+            <template v-else>
+              <strong>✅ Bo‘sh</strong>
+              <p>Band qilish mumkin</p>
+              <button class="tooltip-btn">Band qilish</button>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -54,21 +64,12 @@ export default {
     return {
       year: now.getFullYear(),
       month: now.getMonth(),
-      days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-
+      activeDay: null,
+      days: ["Du", "Se", "Chor", "Pay", "Ju", "Shan", "Yak"],
       dacha: {
-        name: "Istanbul",
         bookings: [
-          {
-            from: "2026-01-10",
-            to: "2026-01-15",
-            by: "Ali",
-          },
-          {
-            from: "2026-01-20",
-            to: "2026-01-22",
-            by: "Vali",
-          },
+          { from: "2026-01-10", to: "2026-01-15", by: "Ali" },
+          { from: "2026-01-20", to: "2026-01-22", by: "Vali" },
         ],
       },
     };
@@ -94,23 +95,14 @@ export default {
 
   methods: {
     prevMonth() {
-      if (this.month === 0) {
-        this.month = 11;
-        this.year--;
-      } else this.month--;
+      this.month === 0 ? (this.month = 11, this.year--) : this.month--;
     },
-
     nextMonth() {
-      if (this.month === 11) {
-        this.month = 0;
-        this.year++;
-      } else this.month++;
+      this.month === 11 ? (this.month = 0, this.year++) : this.month++;
     },
 
     formatDate(day) {
-      return `${this.year}-${String(this.month + 1).padStart(2, "0")}-${String(
-        day
-      ).padStart(2, "0")}`;
+      return `${this.year}-${String(this.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     },
 
     isInRange(date, from, to) {
@@ -119,185 +111,152 @@ export default {
     },
 
     getStatusByDate(date) {
-      for (const booking of this.dacha.bookings) {
-        if (this.isInRange(date, booking.from, booking.to)) {
-          return { status: "band", by: booking.by };
+      for (const b of this.dacha.bookings) {
+        if (this.isInRange(date, b.from, b.to)) {
+          return { status: "band" };
         }
       }
-      return { status: "bo'sh", by: null };
+      return { status: "bosh" };
     },
 
     getDayStatus(day) {
       return this.getStatusByDate(this.formatDate(day));
     },
 
-    selectDay(day) {
+    toggleTooltip(day) {
+      this.activeDay = this.activeDay === day ? null : day;
+    },
+
+    getBookingInfo(day) {
       const date = this.formatDate(day);
-      console.log("Tanlangan sana:", date, this.getStatusByDate(date));
+      return this.dacha.bookings.find(b =>
+        this.isInRange(date, b.from, b.to)
+      );
     },
   },
 };
 </script>
 
-<style>
-/* PAGE */
-.page {
-  width: 100%;
-  padding: 10px;
-  font-family: "Inter", system-ui, sans-serif;
-  background: var(--background-color);
-  color: var(--text-color);
-  border: 1px solid #e5e7eb75;
-  border-radius: 8px;
-}
-.right{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-.icons{
-    display: flex;
-    gap: 10px;
-}
-.icons img{
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+<style scoped>
+:root {
+  --primary-color: #4caf50;
+  --primary-color-hover: #45a049;
+  --secondary-color: #ff9800;
+  --background-color: rgba(38, 38, 38, 1);
+  --text-color: #ffffff;
 }
 
-/* CARD */
+.page {
+  background: var(--background-color);
+  color: var(--text-color);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .card {
+  background: #1f1f1f;
+  border-radius: 14px;
+  padding: 4px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #484848;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  margin-bottom: 20px;
 }
-.card-left h2 {
+
+.title {
   margin: 0;
-  font-size: 16px;
 }
 
-.card-left p {
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.card-left .band {
-  color: #dc2626;
-}
-.card-left .bosh {
-  color: #16a34a;
-}
+.status.band { color: var(--secondary-color); }
+.status.bosh { color: var(--primary-color); }
 
-/* BUTTON */
-.next,
-.prev,
 .primary-btn {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
+  background: var(--primary-color);
+  color: #000;
   border: none;
-  color: white;
   padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
+  border-radius: 8px;
 }
 
-/* CALENDAR */
 .calendar-card {
-  background: #525252;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  background: #1b1b1b;
+  border-radius: 14px;
+  padding: 12px;
 }
 
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-}
-.calendar-header h3 {
-  margin: 0;
-  font-size: 18px;
 }
 
-/* WEEKDAYS */
-.weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 8px;
-}
-
-/* DAYS GRID */
+.weekdays,
 .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  margin-top: 10px;
+  gap: 6px;
+}
+
+.weekdays span {
+  text-align: center;
+  opacity: 0.6;
+  font-size: 12px;
 }
 
 .day {
-  background: #f9fafb;
-  border-radius: 10px;
-  padding: 10px;
-  flex-direction: column;
+  position: relative;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 0.2s ease;
-  color: #000;
-  position: relative;
-}
-.day:hover {
-  transform: translateY(-2px);
 }
 
-/* DAY STATES */
-.day.band {
-  background: #f6abab;
-  color: #991b1b;
-}
 .day.bosh {
-  background: #ecfdf5;
-  color: #065f46;
+  background: rgba(76, 175, 80, 0.15);
+  color: var(--primary-color);
 }
 
-.day-number {
-  font-weight: 600;
-  font-size: 10px;
+.day.band {
+  background: rgba(255, 152, 0, 0.2);
+  color: var(--secondary-color);
 }
 
-.day small {
-  display: block;
-  margin-top: 4px;
-  font-size: 11px;
+.tooltip {
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  padding: 10px;
+  border-radius: 10px;
+  min-width: 180px;
+  z-index: 10;
+  box-shadow: 0 10px 25px rgba(0,0,0,.4);
 }
 
-.empty {
-  visibility: hidden;
+.tooltip-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: var(--primary-color);
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
 }
-
-@media (max-width: 500px) {
-  .day {
-    background: #f9fafb;
-    border-radius: 10px;
-    width: 100%;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.2s ease;
-    color: #000;
-    position: relative;
+@media (max-width: 600px) {
+  .page {
+    padding: 12px;
+  }
+  .days{
+    gap: 2px;
+  }
+  .day{
+    height: 36px;
+    gap: 4px;
+    width: 36px;
   }
 }
 </style>
