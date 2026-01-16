@@ -1,18 +1,21 @@
 <template>
-  <div class="page" @click.self="activeDay = null">
-    <!-- INFO CARD -->
+  <div
+    class="page"
+    v-for="dacha in dachas"
+    :key="dacha._id"
+    @click.self="activeDay = null"
+  >
     <div class="card">
       <div>
-        <h2 class="title">Istanbul</h2>
-        <p class="status" :class="todayStatus.status">
-          Bugun: {{ todayStatus.status.toUpperCase() }}
+        <h2 class="title">{{ dacha.name }}</h2>
+        <p class="status" :class="todayStatus(dacha).status">
+          Bugun: {{ todayStatus(dacha).status.toUpperCase() }}
         </p>
       </div>
 
       <button class="primary-btn">Band qilish</button>
     </div>
 
-    <!-- CALENDAR -->
     <div class="calendar-card">
       <div class="calendar-header">
         <span @click="prevMonth">‹</span>
@@ -25,28 +28,38 @@
       </div>
 
       <div class="days">
-        <span v-for="n in blanks" :key="'b'+n"></span>
+        <span v-for="n in blanks" :key="'b' + n"></span>
 
         <div
           v-for="day in monthDays"
           :key="day"
           class="day"
-          :class="getDayStatus(day).status"
-          @click.stop="toggleTooltip(day)"
+          :class="[
+            getDayStatus(dacha, day).status,
+            { disabled: isPastDay(day) }
+          ]"
+          @click.stop="!isPastDay(day) && toggleTooltip(dacha._id, day)"
         >
           {{ day }}
 
-          <!-- TOOLTIP -->
-          <div v-if="activeDay === day" class="tooltip">
-            <template v-if="getDayStatus(day).status === 'band'">
+          <div
+            v-if="activeDay?.day === day && activeDay?.dachaId === dacha._id"
+            class="tooltip"
+          >
+            <template v-if="getBookingInfo(dacha, day)">
               <strong>❌ Band</strong>
-              <p>👤 {{ getBookingInfo(day).by }}</p>
-              <p>📅 {{ getBookingInfo(day).from }} → {{ getBookingInfo(day).to }}</p>
+              <p>Kim: {{getBookingInfo(dacha, day).OrderedUser}}</p>
+              <p>
+                {{ formatHuman(getBookingInfo(dacha, day).startDate) }}
+                →
+                {{ formatHuman(getBookingInfo(dacha, day).endDate) }}
+              </p>
+              <p>Summa {{ formatMoney(getBookingInfo(dacha, day).totalPrice) }}</p>
+              <p>Avans {{ formatMoney(getBookingInfo(dacha, day).avans) }}</p>
             </template>
 
             <template v-else>
               <strong>✅ Bo‘sh</strong>
-              <p>Band qilish mumkin</p>
               <button class="tooltip-btn">Band qilish</button>
             </template>
           </div>
@@ -54,24 +67,24 @@
       </div>
     </div>
   </div>
+
+  <p v-if="loading" class="loading">Yuklanmoqda...</p>
 </template>
 
+
 <script>
+import api from "../utils/axios";
+
 export default {
-  name: "DachaCalendar",
   data() {
     const now = new Date();
     return {
       year: now.getFullYear(),
       month: now.getMonth(),
       activeDay: null,
-      days: ["Du", "Se", "Chor", "Pay", "Ju", "Shan", "Yak"],
-      dacha: {
-        bookings: [
-          { from: "2026-01-10", to: "2026-01-15", by: "Ali" },
-          { from: "2026-01-20", to: "2026-01-22", by: "Vali" },
-        ],
-      },
+      loading: false,
+      days: ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
+      dachas: [],
     };
   },
 
@@ -79,30 +92,50 @@ export default {
     monthDays() {
       return new Date(this.year, this.month + 1, 0).getDate();
     },
+
     blanks() {
-      return new Date(this.year, this.month, 1).getDay();
+      const firstDay = new Date(this.year, this.month, 1).getDay();
+      return firstDay === 0 ? 6 : firstDay - 1;
     },
+
     monthName() {
-      return new Date(this.year, this.month).toLocaleString("default", {
+      return new Date(this.year, this.month).toLocaleString("uz-UZ", {
         month: "long",
       });
-    },
-    todayStatus() {
-      const today = this.formatDate(new Date().getDate());
-      return this.getStatusByDate(today);
     },
   },
 
   methods: {
-    prevMonth() {
-      this.month === 0 ? (this.month = 11, this.year--) : this.month--;
+    async getAllDachas() {
+      this.loading = true;
+      const res = await api.get("/dacha");
+
+      this.dachas = res.data.map(d => ({
+        ...d,
+        booking: Array.isArray(d.booking) ? d.booking : [],
+      }));
+
+      this.loading = false;
     },
+
+    prevMonth() {
+      this.month === 0 ? ((this.month = 11), this.year--) : this.month--;
+    },
+
     nextMonth() {
-      this.month === 11 ? (this.month = 0, this.year++) : this.month++;
+      this.month === 11 ? ((this.month = 0), this.year++) : this.month++;
     },
 
     formatDate(day) {
-      return `${this.year}-${String(this.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      return `${this.year}-${String(this.month + 1).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`;
+    },
+
+    isPastDay(day) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return new Date(this.year, this.month, day) < today;
     },
 
     isInRange(date, from, to) {
@@ -110,32 +143,57 @@ export default {
       return d >= new Date(from) && d <= new Date(to);
     },
 
-    getStatusByDate(date) {
-      for (const b of this.dacha.bookings) {
-        if (this.isInRange(date, b.from, b.to)) {
+    getStatusByDate(dacha, date) {
+      for (const b of dacha.booking) {
+        if (this.isInRange(date, b.startDate, b.endDate)) {
           return { status: "band" };
         }
       }
       return { status: "bosh" };
     },
 
-    getDayStatus(day) {
-      return this.getStatusByDate(this.formatDate(day));
+    getDayStatus(dacha, day) {
+      return this.getStatusByDate(dacha, this.formatDate(day));
     },
 
-    toggleTooltip(day) {
-      this.activeDay = this.activeDay === day ? null : day;
-    },
-
-    getBookingInfo(day) {
+    getBookingInfo(dacha, day) {
       const date = this.formatDate(day);
-      return this.dacha.bookings.find(b =>
-        this.isInRange(date, b.from, b.to)
+      return (
+        dacha.booking.find(b =>
+          this.isInRange(date, b.startDate, b.endDate)
+        ) || null
       );
     },
+
+    todayStatus(dacha) {
+      const today = this.formatDate(new Date().getDate());
+      return this.getStatusByDate(dacha, today);
+    },
+
+    toggleTooltip(dachaId, day) {
+      this.activeDay =
+        this.activeDay?.day === day && this.activeDay?.dachaId === dachaId
+          ? null
+          : { dachaId, day };
+    },
+
+    formatHuman(date) {
+      return new Date(date).toLocaleDateString("uz-UZ");
+    },
+
+    formatMoney(val) {
+      return Number(val || 0).toLocaleString("uz-UZ");
+    },
+  },
+
+  mounted() {
+    this.getAllDachas();
   },
 };
 </script>
+
+
+
 
 <style scoped>
 :root {
@@ -144,6 +202,12 @@ export default {
   --secondary-color: #ff9800;
   --background-color: rgba(38, 38, 38, 1);
   --text-color: #ffffff;
+}
+
+.disabled {
+  background: #676767 !important;
+  color: #000 !important;
+  cursor: disabled;
 }
 
 .page {
@@ -168,8 +232,13 @@ export default {
   margin: 0;
 }
 
-.status.band { color: var(--secondary-color); }
-.status.bosh { color: var(--primary-color); }
+.status.band {
+  color: var(--secondary-color);
+}
+
+.status.bosh {
+  color: var(--primary-color);
+}
 
 .primary-btn {
   background: var(--primary-color);
@@ -235,7 +304,7 @@ export default {
   border-radius: 10px;
   min-width: 180px;
   z-index: 10;
-  box-shadow: 0 10px 25px rgba(0,0,0,.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .tooltip-btn {
@@ -246,14 +315,17 @@ export default {
   padding: 6px;
   border-radius: 6px;
 }
+
 @media (max-width: 600px) {
   .page {
     padding: 12px;
   }
-  .days{
+
+  .days {
     gap: 2px;
   }
-  .day{
+
+  .day {
     height: 36px;
     gap: 4px;
     width: 36px;

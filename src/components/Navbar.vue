@@ -4,9 +4,7 @@
     <nav class="navbar">
       <div class="nav-brand">
         <h1>Istanbul</h1>
-        <button class="add-btn" @click="openAddModal">
-          ➕ Dacha qo‘shish
-        </button>
+        <button class="add-btn" @click="openAddModal">➕ Dacha qo‘shish</button>
       </div>
     </nav>
 
@@ -15,11 +13,7 @@
       <div class="modal">
         <h3>Dacha qo‘shish</h3>
 
-        <input
-          type="text"
-          placeholder="Dacha nomi"
-          v-model="newDacha.name"
-        />
+        <input type="text" placeholder="Dacha nomi" v-model="newDacha.name" />
 
         <select v-model="newDacha.status">
           <option value="bo'sh">Bo‘sh</option>
@@ -35,34 +29,52 @@
   </div>
 </template>
 <script>
+import api from "../utils/axios";
+import { useToast } from "vue-toastification";
+const toast = useToast()
 export default {
   data() {
     return {
       showAddModal: false,
       newDacha: {
-        name: '',
-        status: "bo'sh"
-      }
-    }
+        name: "",
+        status: "bo'sh",
+      },
+    };
   },
+
   methods: {
     openAddModal() {
-      this.showAddModal = true
+      this.showAddModal = true;
     },
+    async addDacha() {
+      if (!this.newDacha.name.trim()) {
+        this.$toast("Dacha nomini kiriting ❗", "error");
+        return;
+      }
+
+      try {
+        await api.post("/dacha", {
+          ...this.newDacha,
+        });
+
+        toast.success("ishladi")
+        this.closeAddModal();
+      } catch (error) {
+        toast.error("Xatolik yuz berdi ❌", "error");
+      }
+    },
+
     closeAddModal() {
-      this.showAddModal = false
-      this.newDacha.name = ''
-      this.newDacha.status = "bo'sh"
+      this.showAddModal = false;
+      this.newDacha = { name: "", status: "bo'sh" };
     },
-    addDacha() {
-      console.log('Yangi dacha:', this.newDacha)
-      this.closeAddModal()
-    }
-  }
-}
+  },
+};
 </script>
+
 <style>
-    .navbar {
+.navbar {
   padding: 1rem 2rem;
   background-color: #333;
   color: white;
@@ -89,7 +101,7 @@ export default {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +116,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
-
 }
 
 .modal input,
@@ -123,7 +134,9 @@ export default {
   justify-content: space-between;
   margin-top: 10px;
 }
-
+.modal > h3 {
+  color: #fff;
+}
 .save {
   background: #2ecc71;
   color: white;
@@ -141,5 +154,4 @@ export default {
 .cancel:hover {
   background: #95a5a6;
 }
-
 </style>
