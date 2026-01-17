@@ -9,16 +9,16 @@
     </nav>
 
     <!-- ADD DACHA MODAL -->
-    <div v-if="showAddModal" class="modal-overlay">
+    <div v-if="showAddModal" class="modal-overlay" @click.self="closeAddModal">
       <div class="modal">
         <h3>Dacha qo‘shish</h3>
 
         <input type="text" placeholder="Dacha nomi" v-model="newDacha.name" />
 
-        <select v-model="newDacha.status">
+        <!-- <select v-model="newDacha.status">
           <option value="bo'sh">Bo‘sh</option>
           <option value="band">Band</option>
-        </select>
+        </select> -->
 
         <div class="modal-actions">
           <button class="save" @click="addDacha">Saqlash</button>
@@ -83,6 +83,7 @@ export default {
       this.newDacha = { name: "" };
     },
   },
+  
 };
 </script>
 
