@@ -1,28 +1,13 @@
-<template>
-  <div class="container app">
-    <Navbar />
-    <Main/>
-  </div>
+<template lang="">
+    <router-view></router-view>
 </template>
-
 <script>
-import { defineAsyncComponent } from 'vue'
-
 export default {
-  components: {
-    Navbar: defineAsyncComponent(() =>
-      import('./components/Navbar.vue')
-    ),
-    Main: defineAsyncComponent(() =>
-      import('./components/Main.vue')
-    ) 
+  mounted(){
+
   }
 }
 </script>
-<style >
-.app{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+<style lang="">
+  
 </style>
