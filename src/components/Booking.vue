@@ -7,8 +7,8 @@
 
       <input v-model="form.OrderedUser" placeholder="Buyurtmachi ismi" />
 
-      <input type="date" v-model="form.startDate" />
-      <input type="date" v-model="form.endDate" />
+      <input type="date" v-model="form.startDate" placeholder="Keladigan kun" />
+      <input type="date" v-model="form.endDate" placeholder="Ketadigan kun"/>
 
       <input type="number" v-model.number="form.totalPrice" placeholder="Umumiy narx" />
       <input type="number" v-model.number="form.avans" placeholder="Avans" />

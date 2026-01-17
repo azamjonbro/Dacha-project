@@ -7,7 +7,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png'],
+      includeAssets: ['./icon.png'],
       manifest: {
         name: 'Istambul Dacha',
         short_name: 'Istambul',
