@@ -33,9 +33,15 @@
 
 <script>
 import api from "../utils/axios";
-
+import { useToast } from "vue-toastification";
+const toast = useToast()
 export default {
+
   props: {
+    selected:{
+        type:String,
+        required:true
+    },
     mode: {
       type: String,
       default: "create", 
@@ -79,22 +85,22 @@ export default {
       try {
         const payload = {
           ...this.form,
-          dachaId: this.dachaId,
-          createdBy: localStorage.getItem("adminId"),
+          dachaId: this.selected,
+          adminId: localStorage.getItem("adminId"),
         };
 
         if (this.mode === "create") {
           await api.post("/booking", payload);
-          this.$toast.success("Band qilindi ✅");
+          toast.success("Band qilindi ✅");
         } else {
           await api.put(`/booking/${this.booking._id}`, payload);
-          this.$toast.success("Yangilandi ✅");
+          toast.success("Yangilandi ✅");
         }
 
         this.$emit("saved");
         this.$emit("close");
       } catch (e) {
-        this.$toast.error("Xatolik yuz berdi ❌");
+        toast.error("Xatolik yuz berdi ❌");
       }
     },
   },
@@ -116,7 +122,7 @@ export default {
   color: #fff;
   padding: 24px;
   border-radius: 14px;
-  width: 420px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 10px;
