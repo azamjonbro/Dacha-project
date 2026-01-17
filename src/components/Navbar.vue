@@ -38,7 +38,6 @@ export default {
       showAddModal: false,
       newDacha: {
         name: "",
-        status: "bo'sh",
       },
     };
   },
@@ -47,111 +46,44 @@ export default {
     openAddModal() {
       this.showAddModal = true;
     },
+
     async addDacha() {
       if (!this.newDacha.name.trim()) {
-        this.$toast("Dacha nomini kiriting ❗", "error");
+        this.$toast.error("Dacha nomini kiriting ❗");
         return;
       }
 
       try {
-        await api.post("/dacha", {
-          ...this.newDacha,
-        });
+        const adminId = localStorage.getItem("adminId");
 
-        toast.success("ishladi")
+        if (!adminId) {
+          this.$toast.error("Admin topilmadi ❌");
+          return;
+        }
+
+        await api.post("/dacha", {
+          name: this.newDacha.name,
+          adminId,
+        });
+        this.closeAddModal()
+
+        toast.success("Dacha muvaffaqiyatli qo‘shildi ✅");
+        this.$emit("reload")
         this.closeAddModal();
       } catch (error) {
-        toast.error("Xatolik yuz berdi ❌", "error");
+        console.error(error);
+        this.$toast.error(
+          error?.response?.data?.message || "Xatolik yuz berdi ❌"
+        );
       }
     },
 
     closeAddModal() {
       this.showAddModal = false;
-      this.newDacha = { name: "", status: "bo'sh" };
+      this.newDacha = { name: "" };
     },
   },
 };
 </script>
 
-<style>
-.navbar {
-  padding: 1rem 2rem;
-  background-color: #333;
-  color: white;
-  border-radius: 8px;
-}
 
-.nav-brand {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.add-btn {
-  background: #2ecc71;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal {
-  background: var(--background-color);
-  padding: 20px;
-  width: 300px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.modal input,
-.modal select {
-  padding: 10px;
-  border-radius: 6px;
-  background: var(--background-color);
-  color: var(--text-color);
-  border: 1px solid #ccc;
-}
-.modal input::placeholder {
-  color: #999;
-}
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-.modal > h3 {
-  color: #fff;
-}
-.save {
-  background: #2ecc71;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-}
-
-.cancel {
-  background: #bdc3c7;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-}
-.cancel:hover {
-  background: #95a5a6;
-}
-</style>

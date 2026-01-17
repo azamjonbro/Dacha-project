@@ -18,9 +18,9 @@
 
     <div class="calendar-card">
       <div class="calendar-header">
-        <span @click="prevMonth">‹</span>
+        <span class="next" @click="prevMonth">‹</span>
         <h3>{{ monthName }} {{ year }}</h3>
-        <span @click="nextMonth">›</span>
+        <span class="prev" @click="nextMonth">›</span>
       </div>
 
       <div class="weekdays">
@@ -48,7 +48,7 @@
           >
             <template v-if="getBookingInfo(dacha, day)">
               <strong>❌ Band</strong>
-              <p>Kim: {{getBookingInfo(dacha, day).OrderedUser}}</p>
+              <p>Kim: {{getBookingInfo(dacha, day).Ordere}}</p>
               <p>
                 {{ formatHuman(getBookingInfo(dacha, day).startDate) }}
                 →
@@ -69,13 +69,19 @@
   </div>
 
   <p v-if="loading" class="loading">Yuklanmoqda...</p>
+  <!-- <Booking/> -->
 </template>
 
 
 <script>
 import api from "../utils/axios";
+import Booking from "./Booking.vue";
 
 export default {
+  components:{
+    Booking
+  },
+
   data() {
     const now = new Date();
     return {
@@ -98,11 +104,14 @@ export default {
       return firstDay === 0 ? 6 : firstDay - 1;
     },
 
-    monthName() {
-      return new Date(this.year, this.month).toLocaleString("uz-UZ", {
-        month: "long",
-      });
-    },
+  monthName() {
+  const months = [
+    "Yanvar", "Fevral", "Mart", "Aprel",
+    "May", "Iyun", "Iyul", "Avgust",
+    "Sentabr", "Oktabr", "Noyabr", "Dekabr"
+  ];
+  return months[this.month];
+},
   },
 
   methods: {
@@ -203,7 +212,10 @@ export default {
   --background-color: rgba(38, 38, 38, 1);
   --text-color: #ffffff;
 }
-
+.next, .prev{
+  font-size: 18px;
+  cursor: pointer;
+}
 .disabled {
   background: #676767 !important;
   color: #000 !important;
@@ -216,11 +228,10 @@ export default {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
 .card {
-  background: #1f1f1f;
+  background: inherit;
   border-radius: 14px;
   padding: 4px;
   display: flex;

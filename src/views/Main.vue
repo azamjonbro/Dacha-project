@@ -1,7 +1,7 @@
 <template>
   <div class="container app">
-    <Navbar />
-    <Main/>
+    <Navbar @reload="reloadMain"/>
+    <Main ref="mainRef"/>
   </div>
 </template>
 
@@ -16,7 +16,12 @@ export default {
     Main: defineAsyncComponent(() =>
       import('../components/Main.vue')
     ) 
-  }
+  },
+  methods: {
+    reloadMain() {
+      this.$refs.mainRef?.getAllDachas();
+    },
+  },
 }
 </script>
 <style >

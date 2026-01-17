@@ -22,9 +22,9 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
 
   if (to.meta.requiresAuth && !token) {
-    next("/login"); // ❌ token yo‘q → login
+    next("/login");
   } else if (to.path === "/login" && token) {
-    next("/"); // ✅ token bor → home
+    next("/"); 
   } else {
     next();
   }
