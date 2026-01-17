@@ -50,7 +50,7 @@
           >
             <template v-if="getBookingInfo(dacha, day)">
               <strong>❌ Band</strong>
-              <p>Kim: {{ getBookingInfo(dacha, day).Ordere }}</p>
+              <p>Kim: {{ getBookingInfo(dacha, day).OrderedUser }}</p>
               <p>
                 {{ formatHuman(getBookingInfo(dacha, day).startDate) }}
                 →
