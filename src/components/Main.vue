@@ -13,7 +13,9 @@
         </p>
       </div>
 
-      <button class="primary-btn">Band qilish</button>
+      <button class="primary-btn" @click="showBookingModal(dacha._id)">
+        Band qilish
+      </button>
     </div>
 
     <div class="calendar-card">
@@ -36,7 +38,7 @@
           class="day"
           :class="[
             getDayStatus(dacha, day).status,
-            { disabled: isPastDay(day) }
+            { disabled: isPastDay(day) },
           ]"
           @click.stop="!isPastDay(day) && toggleTooltip(dacha._id, day)"
         >
@@ -48,13 +50,15 @@
           >
             <template v-if="getBookingInfo(dacha, day)">
               <strong>❌ Band</strong>
-              <p>Kim: {{getBookingInfo(dacha, day).Ordere}}</p>
+              <p>Kim: {{ getBookingInfo(dacha, day).Ordere }}</p>
               <p>
                 {{ formatHuman(getBookingInfo(dacha, day).startDate) }}
                 →
                 {{ formatHuman(getBookingInfo(dacha, day).endDate) }}
               </p>
-              <p>Summa {{ formatMoney(getBookingInfo(dacha, day).totalPrice) }}</p>
+              <p>
+                Summa {{ formatMoney(getBookingInfo(dacha, day).totalPrice) }}
+              </p>
               <p>Avans {{ formatMoney(getBookingInfo(dacha, day).avans) }}</p>
             </template>
 
@@ -69,28 +73,29 @@
   </div>
 
   <p v-if="loading" class="loading">Yuklanmoqda...</p>
-  <!-- <Booking/> -->
+  <Booking v-if="showBooking" :selected="selectedDacha" @close="showBooking=false"/>
 </template>
-
 
 <script>
 import api from "../utils/axios";
 import Booking from "./Booking.vue";
 
 export default {
-  components:{
-    Booking
+  components: {
+    Booking,
   },
 
   data() {
     const now = new Date();
     return {
+      showBooking: false,
       year: now.getFullYear(),
       month: now.getMonth(),
       activeDay: null,
       loading: false,
       days: ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
       dachas: [],
+      selectedDacha : null
     };
   },
 
@@ -104,22 +109,37 @@ export default {
       return firstDay === 0 ? 6 : firstDay - 1;
     },
 
-  monthName() {
-  const months = [
-    "Yanvar", "Fevral", "Mart", "Aprel",
-    "May", "Iyun", "Iyul", "Avgust",
-    "Sentabr", "Oktabr", "Noyabr", "Dekabr"
-  ];
-  return months[this.month];
-},
+    monthName() {
+      const months = [
+        "Yanvar",
+        "Fevral",
+        "Mart",
+        "Aprel",
+        "May",
+        "Iyun",
+        "Iyul",
+        "Avgust",
+        "Sentabr",
+        "Oktabr",
+        "Noyabr",
+        "Dekabr",
+      ];
+      return months[this.month];
+    },
   },
 
   methods: {
+    showBookingModal(id){
+      this.selectedDacha= id
+      console.log("hello");
+      
+      this.showBooking = true
+    },
     async getAllDachas() {
       this.loading = true;
       const res = await api.get("/dacha");
 
-      this.dachas = res.data.map(d => ({
+      this.dachas = res.data.map((d) => ({
         ...d,
         booking: Array.isArray(d.booking) ? d.booking : [],
       }));
@@ -168,7 +188,7 @@ export default {
     getBookingInfo(dacha, day) {
       const date = this.formatDate(day);
       return (
-        dacha.booking.find(b =>
+        dacha.booking.find((b) =>
           this.isInRange(date, b.startDate, b.endDate)
         ) || null
       );
@@ -200,6 +220,3 @@ export default {
   },
 };
 </script>
-
-
-
