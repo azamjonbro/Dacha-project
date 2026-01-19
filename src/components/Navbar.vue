@@ -4,7 +4,7 @@
     <nav class="navbar">
       <div class="nav-brand">
         <h1>Istanbul</h1>
-        <button class="add-btn" @click="openAddModal">➕ Dacha qo‘shish</button>
+        <button class="add-btn" @click="openAddModal">Dacha qo‘shish</button>
       </div>
     </nav>
 
@@ -71,7 +71,6 @@ export default {
         this.$emit("reload")
         this.closeAddModal();
       } catch (error) {
-        console.error(error);
         this.$toast.error(
           error?.response?.data?.message || "Xatolik yuz berdi ❌"
         );

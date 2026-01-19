@@ -1,15 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Main from "../views/Main.vue";
 
 const routes = [
   {
     path: "/",
-    component: Main,
+    component: () => import("../views/Main.vue"), // lazy
     meta: { requiresAuth: true },
   },
-  { 
+  {
     path: "/login",
-    component: () => import("../views/Login.vue") },
+    component: () => import("../views/Login.vue"),
+  },
 ];
 
 const router = createRouter({
@@ -17,16 +17,19 @@ const router = createRouter({
   routes,
 });
 
-
+/* AUTH GUARD */
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
 
-  if (to.meta.requiresAuth && !token) {
-    next("/login");
-  } else if (to.path === "/login" && token) {
-    next("/"); 
-  } else {
-    next();
+  if (!token && to.meta.requiresAuth) {
+    return next("/login");
   }
+
+  if (token && to.path === "/login") {
+    return next("/");
+  }
+
+  next();
 });
+
 export default router;

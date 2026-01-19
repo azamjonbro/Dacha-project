@@ -1,6 +1,17 @@
 <template>
-  <div class="page"  v-for="dacha in dachas" :key="dacha._id" @click.self="activeDay = null">
-    <div class="card"  @click.self="activeDay = null;activeMenu = null;">
+  <div
+    class="page"
+    v-for="dacha in dachas"
+    :key="dacha._id"
+    @click.self="activeDay = null"
+  >
+    <div
+      class="card"
+      @click.self="
+        activeDay = null;
+        activeMenu = null;
+      "
+    >
       <div @click="showAllBooking(dacha.booking)">
         <h2 class="title">{{ dacha.name }}</h2>
         <p class="status" :class="todayStatus(dacha).status">
@@ -9,7 +20,12 @@
       </div>
 
       <div class="right">
-        <div class="lines" @click.stop="toggleMenu(dacha._id)">
+        <div
+          class="lines"
+          aria-label="Menu"
+          role="button"
+          @click.stop="toggleMenu(dacha._id)"
+        >
           <div class="line"></div>
           <div class="line"></div>
           <div class="line"></div>
@@ -26,9 +42,17 @@
 
     <div class="calendar-card">
       <div class="calendar-header">
-        <span class="next" @click="prevMonth(dacha)">‹</span>
+        <span
+          role="button"
+          aria-label="Oldingi oy"
+          class="next"
+          @click="prevMonth(dacha)"
+          >‹</span
+        >
         <h3>{{ monthName(dacha) }} {{ dacha.calendar.year }}</h3>
-        <span class="prev" @click="nextMonth(dacha)">›</span>
+        <span role="button" aria-label="Keyingi oy" @click="nextMonth(dacha)"
+          >›</span
+        >
       </div>
 
       <div class="weekdays">
@@ -103,242 +127,33 @@
         <p>Sana</p>
         <p>Summa</p>
         <p></p>
+      </div>
+      <div class="items">
+        <div class="item" v-for="item in AllShowBookingItems" :key="item._id">
+          <p class="name">{{ item.OrderedUser }}</p>
 
+          <div class="date">
+            <p>{{ formattedDate(item.startDate) }}</p>
+            <p>{{ formattedDate(item.endDate) }}</p>
+          </div>
 
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
+          <div class="price">
+            <p>{{ formatMoney(item.totalPrice) }}</p>
+            <p>{{ formatMoney(item.avans) }}</p>
           </div>
-          <div class="delete">
-            🗑️
+
+          <div class="iconbox">
+            <div class="edit" @click="editBooking(item)">🖋️</div>
+            <div class="delete" @click="deleteBooking(item._id)">🗑️</div>
           </div>
         </div>
       </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
-      <div class="item">
-        <p>Azamjon</p>
-        <div class="date">
-          <p>19-yanvar</p>
-          <p>24-yanvar</p>
-        </div>
-        <div class="price">
-          <p>55000</p>
-          <p>29000</p>
-        </div>
-        <div class="iconbox">
-          <div class="edit">
-            🖋️
-          </div>
-          <div class="delete">
-            🗑️
-          </div>
-        </div>
-      </div>
+
       <div class="bottom">
-        <button class="close">Ortga</button>
+        <button @click="closeAllBookingModalFunct" class="close add-btn">
+          Ortga
+        </button>
       </div>
-     
-
     </div>
   </div>
 </template>
@@ -361,8 +176,9 @@ export default {
       bookingModal: false,
       selectedDacha: null,
       selectDeleteDacha: null,
-      showAllBookigStatus:false,
+      showAllBookigStatus: false,
       showDeleteDachaMessage: false,
+      AllShowBookingItems: [],
       days: ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
     };
   },
@@ -388,10 +204,9 @@ export default {
 
       this.loading = false;
     },
-    showAllBooking(item){
-      this.showAllBookigStatus=true
-      console.log(item);
-      
+    showAllBooking(item) {
+      this.showAllBookigStatus = true;
+      this.AllShowBookingItems = item;
     },
     monthDays(d) {
       return new Date(d.calendar.year, d.calendar.month + 1, 0).getDate();
@@ -434,6 +249,18 @@ export default {
         "Dekabr",
       ][d.calendar.month];
     },
+    formattedDate(date) {
+      const d = new Date(date);
+      const day = d.getDate();
+      const months = [
+        "Yanvar","Fevral","Mart","Aprel","May","Iyun",
+        "Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"
+      ];
+      return `${day}-${months[d.getMonth()]}`;
+    },
+    closeAllBookingModalFunct() {
+      this.showAllBookigStatus = false;
+    },
 
     prevMonth(d) {
       d.calendar.month === 0
@@ -457,18 +284,17 @@ export default {
       return new Date(dacha.calendar.year, dacha.calendar.month, day) < today;
     },
 
-   isInRange(date, from, to) {
-  const d = new Date(date);
-  const f = new Date(from);
-  const t = new Date(to);
+    isInRange(date, from, to) {
+      const d = new Date(date);
+      const f = new Date(from);
+      const t = new Date(to);
 
-  const localD = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const localF = new Date(f.getFullYear(), f.getMonth(), f.getDate());
-  const localT = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+      const localD = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const localF = new Date(f.getFullYear(), f.getMonth(), f.getDate());
+      const localT = new Date(t.getFullYear(), t.getMonth(), t.getDate());
 
-  return localD >= localF && localD <= localT;
-},
-
+      return localD >= localF && localD <= localT;
+    },
 
     getStatusByDate(dacha, date) {
       for (const b of dacha.booking) {
