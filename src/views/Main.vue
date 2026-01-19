@@ -16,6 +16,7 @@ export default {
     Main: defineAsyncComponent(() =>
       import('../components/Main.vue')
     ) 
+
   },
   methods: {
     reloadMain() {

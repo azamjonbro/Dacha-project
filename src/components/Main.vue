@@ -28,7 +28,7 @@
         </div>
         <!-- DROPDOWN -->
         <div v-if="activeMenu === dacha._id" class="menu-drop">
-          <button @click="editDacha(dacha)">O'zgartirish</button>
+          <!-- <button @click="editDacha(dacha)">O'zgartirish</button> -->
           <button @click="deleteDacha(dacha._id)">O'chirish</button>
         </div>
         <button class="primary-btn" @click="showBookingModal(dacha._id)">
@@ -63,8 +63,6 @@
           @click.stop="!isPastDay(dacha, day) && toggleTooltip(dacha._id, day)"
         >
           {{ day }}
-
-          <!-- TOOLTIP -->
           <div
             v-if="activeDay?.day === day && activeDay?.dachaId === dacha._id"
             class="tooltip"
@@ -91,14 +89,22 @@
       </div>
     </div>
   </div>
-
+  <div class="message" v-if="showDeleteDachaMessage">
+    <div class="message-modal">
+      <h2>Dachani o'chirmoqchimisiz ?</h2>
+      <div class="btnbox">
+        <button @click="deleteConfirm">O'chirish</button>
+        <button>Ortga</button>
+      </div>
+    </div>
+  </div>
   <p v-if="loading" class="loading">Yuklanmoqda...</p>
- <Booking
-  v-if="bookingModal"
-  :selected="selectedDacha"
-  @close="bookingModal = false"
-  @saved="getAllDachas()"
-/>
+  <Booking
+    v-if="bookingModal"
+    :selected="selectedDacha"
+    @close="bookingModal = false"
+    @saved="getAllDachas()"
+  />
 </template>
 
 <script>
@@ -106,8 +112,8 @@ import api from "../utils/axios";
 import Booking from "./Booking.vue";
 
 export default {
-  components:{
-    Booking
+  components: {
+    Booking,
   },
   data() {
     return {
@@ -115,8 +121,10 @@ export default {
       dachas: [],
       activeDay: null,
       activeMenu: null,
-      bookingModal:false,
-      selectedDacha:null,
+      bookingModal: false,
+      selectedDacha: null,
+      selectDeleteDacha: null,
+      showDeleteDachaMessage: false,
       days: ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
     };
   },
@@ -156,7 +164,15 @@ export default {
 
       return first === 0 ? 6 : first - 1;
     },
-
+    deleteDacha(id) {
+      this.showDeleteDachaMessage = true;
+      this.selectDeleteDacha = id;
+    },
+    async deleteConfirm(){
+      let data = await api.delete("/dacha/"+this.selectDeleteDacha)
+      console.log(data);
+      
+    },
     monthName(d) {
       return [
         "Yanvar",
@@ -244,8 +260,8 @@ export default {
     },
 
     async showBookingModal(id) {
-      this.selectedDacha = id
-  this.bookingModal = true
+      this.selectedDacha = id;
+      this.bookingModal = true;
     },
   },
 
