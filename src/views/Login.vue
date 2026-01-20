@@ -127,11 +127,145 @@ async function submitLogin() {
       router.push("/");
     }, 600);
   } catch (err) {
-    console.error(err);
     toast.error("Server bilan aloqa yo‘q ❌");
   }
 }
 </script>
 
 
+<style scoped>
+ .login-wrapper {
+  min-height: 100vh;
+  background: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, system-ui;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  background: #1e1e1e;
+  padding: 32px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.title {
+  font-size: 24px;
+  color: #fff;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+input {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  padding: 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+}
+
+input::placeholder {
+  color: #6b7280;
+}
+
+input:focus {
+  border-color: #4caf50;
+}
+
+button {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #4caf50;
+  color: #000;
+  font-weight: 600;
+  transition: 0.2s;
+  outline: none;
+  border: none;
+}
+
+button:hover {
+  background: #43a047;
+}
+
+/* CAPTCHA MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #1e1e1e;
+  padding: 24px;
+  border-radius: 16px;
+  width: 320px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal h3 {
+  margin-bottom: 6px;
+}
+
+.question {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4caf50;
+  text-align: center;
+}
+
+.error {
+  color: #ff4d4f;
+  font-size: 13px;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+}
+
+.cancel {
+  background: #333;
+  color: #fff;
+}
+
+.cancel:hover {
+  background: #444;
+}
+
+/* MOBILE */
+@media (max-width: 420px) {
+  .login-card {
+    margin: 0 10px;
+    padding: 24px;
+  }
+
+  .modal {
+    width: 90%;
+  }
+}
+
+</style>
 

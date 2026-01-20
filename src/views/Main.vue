@@ -1,8 +1,8 @@
 <template>
-  <div class="container app">
+  <main role="main" class="container app">
     <Navbar @reload="reloadMain"/>
     <Main ref="mainRef"/>
-  </div>
+  </main>
 </template>
 
 <script>
