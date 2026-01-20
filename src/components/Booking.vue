@@ -81,28 +81,36 @@ export default {
   },
 
   methods: {
-    async submit() {
-      try {
-        const payload = {
-          ...this.form,
-          dachaId: this.selected,
-          adminId: localStorage.getItem("adminId"),
-        };
+   async submit() {
+  try {
+    const fixDate = (dateStr) => {
+      const d = new Date(dateStr);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    };
 
-        if (this.mode === "create") {
-          await api.post("/booking", payload);
-          toast.success("Band qilindi ✅");
-        } else {
-          await api.put(`/booking/${this.booking._id}`, payload);
-          toast.success("Yangilandi ✅");
-        }
+    const payload = {
+      ...this.form,
+      startDate: fixDate(this.form.startDate),
+      endDate: fixDate(this.form.endDate),
+      dachaId: this.selected,
+      adminId: localStorage.getItem("adminId"),
+    };
 
-        this.$emit("saved");
-        this.$emit("close");
-      } catch (e) {
-        toast.error("Xatolik yuz berdi ❌");
-      }
-    },
+    if (this.mode === "create") {
+      await api.post("/booking", payload);
+      toast.success("Band qilindi ✅");
+    } else {
+      await api.put(`/booking/${this.booking._id}`, payload);
+      toast.success("Yangilandi ✅");
+    }
+
+    this.$emit("saved");
+    this.$emit("close");
+  } catch (e) {
+    toast.error("Xatolik yuz berdi ❌");
+  }
+}
+
   },
 };
 </script>
