@@ -14,7 +14,7 @@
       <input type="number" v-model.number="form.avans" placeholder="Avans" />
 
       <input v-model="form.phone1" placeholder="Telefon 1" />
-      <input v-model="form.phone2" placeholder="Telefon 2 (ixtiyoriy)" />
+      <input v-model="form.phone2" placeholder="Telefon 2" />
 
       <!-- <select v-model="form.isActive">
         <option :value="true">Faol</option>

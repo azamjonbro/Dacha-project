@@ -199,7 +199,6 @@ button:hover {
   background: #43a047;
 }
 
-/* CAPTCHA MODAL */
 .modal-overlay {
   position: fixed;
   inset: 0;

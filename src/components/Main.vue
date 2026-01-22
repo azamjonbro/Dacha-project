@@ -12,7 +12,7 @@
         activeMenu = null;
       "
     >
-      <div @click="showAllBooking(dacha.booking)">
+      <div >
         <h2 class="title">{{ dacha.name }}</h2>
         <p class="status" :class="todayStatus(dacha).status">
           Bugun: {{ todayStatus(dacha).status.toUpperCase() }}
@@ -40,8 +40,8 @@
       </div>
     </div>
 
-    <div class="calendar-card">
-      <div class="calendar-header">
+    <div class="calendar-card" @click.self="showAllBookigStatus=false">
+      <div class="calendar-header"  >
         <span
           role="button"
           aria-label="Oldingi oy"
@@ -49,8 +49,12 @@
           @click="prevMonth(dacha)"
           >‹</span
         >
-        <h3>{{ monthName(dacha) }} {{ dacha.calendar.year }}</h3>
-        <span role="button" aria-label="Keyingi oy" @click="nextMonth(dacha)"
+        <h3 @click="showAllBooking(dacha.booking)">{{ monthName(dacha) }} {{ dacha.calendar.year }}</h3>
+        <span
+          role="button"
+          class="next"
+          aria-label="Keyingi oy"
+          @click="nextMonth(dacha)"
           >›</span
         >
       </div>
@@ -105,8 +109,25 @@
         <div class="message-modal">
           <h2>Dachani o'chirmoqchimisiz ?</h2>
           <div class="btnbox">
-            <button @click="deleteConfirm">O'chirish</button>
-            <button @click="cancel">Ortga</button>
+            <button class="delete prev" @click="deleteConfirm">
+              O'chirish
+            </button>
+            <button class="cancel" @click="cancel">Ortga</button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="message"
+        v-if="showDeleteBookingMessage"
+        @click.self="showDeleteBookingMessage = false"
+      >
+        <div class="message-modal">
+          <h2>Ushbu band qilingan kunlarni o'chirmoqchimisiz ?</h2>
+          <div class="btnbox">
+            <button class="delete prev" @click="deleteBookingConfirm">
+              O'chirish
+            </button>
+            <button class="cancel" @click="cancel">Ortga</button>
           </div>
         </div>
       </div>
@@ -116,11 +137,16 @@
   <p v-if="loading" class="loading">Yuklanmoqda...</p>
   <Booking
     v-if="bookingModal"
-    :selected="selectedDacha"
+    :booking="selectedDacha"
+    :mode="isCreate"
     @close="bookingModal = false"
     @saved="getAllDachas()"
   />
-  <div class="allBookings" v-if="showAllBookigStatus">
+  <div
+    class="allBookings"
+    v-if="showAllBookigStatus"
+    @click.self="showDeleteBookingMessage = false; showAllBookigStatus= false"
+  >
     <div class="allBookingModal">
       <div class="header">
         <p>Ega</p>
@@ -178,6 +204,9 @@ export default {
       selectDeleteDacha: null,
       showAllBookigStatus: false,
       showDeleteDachaMessage: false,
+      showDeleteBookingMessage: false,
+      isCreate : "create",
+      deleteBookingId: null,
       AllShowBookingItems: [],
       days: ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
     };
@@ -253,19 +282,44 @@ export default {
       const d = new Date(date);
       const day = d.getDate();
       const months = [
-        "Yanvar","Fevral","Mart","Aprel","May","Iyun",
-        "Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"
+        "Yanvar",
+        "Fevral",
+        "Mart",
+        "Aprel",
+        "May",
+        "Iyun",
+        "Iyul",
+        "Avgust",
+        "Sentabr",
+        "Oktabr",
+        "Noyabr",
+        "Dekabr",
       ];
       return `${day}-${months[d.getMonth()]}`;
     },
     closeAllBookingModalFunct() {
       this.showAllBookigStatus = false;
     },
-
+    editBooking(item){
+      this.bookingModal=true
+      this.selectedDacha= item
+      this.isCreate="edit"
+    },
     prevMonth(d) {
       d.calendar.month === 0
         ? ((d.calendar.month = 11), d.calendar.year--)
         : d.calendar.month--;
+    },
+    deleteBooking(id) {
+      this.deleteBookingId = id;
+      this.showDeleteBookingMessage = true;
+    },
+    async deleteBookingConfirm() {
+      await api.delete("/booking/" + this.deleteBookingId);
+      this.getAllDachas();
+      toast.success("Band bekor qilindi");
+      this.showDeleteBookingMessage = false;
+      this.showAllBookigStatus = false;
     },
 
     nextMonth(d) {
@@ -340,6 +394,7 @@ export default {
     cancel() {
       this.activeMenu = null;
       this.showDeleteDachaMessage = false;
+      this.showDeleteBookingMessage = false;
     },
 
     async showBookingModal(id) {
