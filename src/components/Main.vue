@@ -94,9 +94,10 @@
               <p>Avans {{ formatMoney(getBookingInfo(dacha, day).avans) }}</p>
             </template>
 
-            <template v-else>
+            <template v-else class="temp">
               <strong>✅ Bo‘sh</strong>
-              <button @click="showBookingModal(dacha._id)">Band qilish</button>
+              <br>
+              <button class="next" @click="showBookingModal(dacha._id)">Band qilish</button>
             </template>
           </div>
         </div>
