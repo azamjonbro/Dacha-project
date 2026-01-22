@@ -8,9 +8,13 @@
       <input v-model="form.OrderedUser" placeholder="Buyurtmachi ismi" />
 
       <input type="date" v-model="form.startDate" placeholder="Keladigan kun" />
-      <input type="date" v-model="form.endDate" placeholder="Ketadigan kun"/>
+      <input type="date" v-model="form.endDate" placeholder="Ketadigan kun" />
 
-      <input type="number" v-model.number="form.totalPrice" placeholder="Umumiy narx" />
+      <input
+        type="number"
+        v-model.number="form.totalPrice"
+        placeholder="Umumiy narx"
+      />
       <input type="number" v-model.number="form.avans" placeholder="Avans" />
 
       <input v-model="form.phone1" placeholder="Telefon 1" />
@@ -34,20 +38,19 @@
 <script>
 import api from "../utils/axios";
 import { useToast } from "vue-toastification";
-const toast = useToast()
+const toast = useToast();
 export default {
-
   props: {
-    selected:{
-        type:String,
-        required:true
+    selected: {
+      type: String,
+      required: true,
     },
     mode: {
       type: String,
-      default: "create", 
+      default: "create",
     },
     dachaId: String,
-    booking: Object, 
+    booking: Object,
   },
 
   data() {
@@ -81,36 +84,34 @@ export default {
   },
 
   methods: {
-   async submit() {
-  try {
-    const fixDate = (dateStr) => {
-      const d = new Date(dateStr);
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    };
+    async submit() {
+      try {
+        const payload = {
+          dachaId: this.dachaId,
+          OrderedUser: this.form.OrderedUser,
+          startDate: this.form.startDate, // 🔥 STRING
+          endDate: this.form.endDate, // 🔥 STRING
+          totalPrice: this.form.totalPrice,
+          avans: this.form.avans,
+          phone1: this.form.phone1,
+          phone2: this.form.phone2,
+        };
 
-    const payload = {
-      ...this.form,
-      startDate: fixDate(this.form.startDate),
-      endDate: fixDate(this.form.endDate),
-      dachaId: this.selected,
-      adminId: localStorage.getItem("adminId"),
-    };
+        if (this.mode === "create") {
+          await api.post("/booking", payload);
+          toast.success("Band qilindi ✅");
+        } else {
+          await api.put(`/booking/${this.booking._id}`, payload);
+          toast.success("Yangilandi ✅");
+        }
 
-    if (this.mode === "create") {
-      await api.post("/booking", payload);
-      toast.success("Band qilindi ✅");
-    } else {
-      await api.put(`/booking/${this.booking._id}`, payload);
-      toast.success("Yangilandi ✅");
-    }
-
-    this.$emit("saved");
-    this.$emit("close");
-  } catch (e) {
-    toast.error("Xatolik yuz berdi ❌");
-  }
-}
-
+        this.$emit("saved");
+        this.$emit("close");
+      } catch (e) {
+        console.log("API ERROR:", e.response?.data);
+        toast.error(e.response?.data?.message || "Xatolik yuz berdi ❌");
+      }
+    },
   },
 };
 </script>

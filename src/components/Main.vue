@@ -139,6 +139,7 @@
     v-if="bookingModal"
     :booking="selectedDacha"
     :mode="isCreate"
+    :dachaId="selectedDacha"
     @close="bookingModal = false"
     @saved="getAllDachas()"
   />
