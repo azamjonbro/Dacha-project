@@ -131,7 +131,7 @@ li {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 2;
+  z-index: 4;
   background: #00000087;
   display: flex;
   justify-content: center;
@@ -145,6 +145,10 @@ li {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+.btn-box>button{
+  background: #007330;
+  padding: 6px 20px;
 }
 .allBookings {
   position: fixed;
@@ -336,6 +340,10 @@ input[type="number"] {
 .cancel {
   background: #bdc3c7;
   border: none;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
   padding: 8px 14px;
   border-radius: 6px;
 }
