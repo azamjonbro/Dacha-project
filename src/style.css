@@ -1,260 +1,167 @@
 :root {
-  --primary-color: #4caf50;
-  --primary-color-hover: #45a049;
-  --secondary-color: #ff9800;
-  --background-color: rgba(38, 38, 38, 1);
-  --text-color: #ffffff;
+  --primary-color: #2563eb;
+  --primary-color-hover: #1d4ed8;
+  --background-color: #0f172a;
+  --text-color: #f8fafc;
+  --text-muted: #94a3b8;
+  --card-bg: #1e293b;
+  --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+  --border-color: #334155;
+  --nav-bg: rgba(30, 41, 59, 0.95);
+  --nav-border: #334155;
+  --danger-color: #dc2626;
+  --success-color: #16a34a;
 }
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  overscroll-behavior-y: none;
+  overflow: hidden;
+  width: 100vw;
+  height: 100dvh;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
 .container {
   max-width: 800px;
   margin: 0 auto;
 }
-::-webkit-scrollbar {
-  display: none;
-}
-body {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  background-color: var(--background-color);
-  margin: 0;
-  padding: 0;
-}
-a {
-  color: var(--text-color);
-  text-decoration: none;
-}
-li {
-  list-style: none;
-}
+
 .page {
-  width: 100%;
-  padding: 10px;
-  font-family: "Inter", system-ui, sans-serif;
-  background: var(--background-color);
-  color: var(--text-color);
-  border: 1px solid #e5e7eb75;
-  border-radius: 8px;
-}
-.right {
+  padding:  8px  8px;
+  /* padding-bottom: 120px; */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
-.icons {
-  display: flex;
-  gap: 10px;
-}
-.icons img {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
+.page:last-child {
+  padding-bottom: 90px;
 }
 
+/* CARDS */
 .card {
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  border-radius: 20px;
+  padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #484848;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-.card-left h2 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.card-left p {
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.card-left .band {
-  color: #dc2626;
-}
-.card-left .bosh {
-  color: #16a34a;
-}
-
-.next,
-.prev,
-.primary-btn {
-    background: #007330;
-  border: none;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
+  border: 1px solid var(--border-color);
 }
 
 .calendar-card {
-  background: #525252;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
 }
 
+/* CALENDAR DAYS */
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .calendar-header h3 {
   margin: 0;
   font-size: 18px;
+  font-weight: 600;
 }
 
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  font-size: 12px;
-  color:#fff;
+  font-size: 13px;
+  color: var(--text-muted);
   margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-}
-.message {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 4;
-  background: #00000087;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.message-modal {
-  color: #fff;
-  background: #2b2b2b;
-  padding: 40px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.btn-box>button{
-  background: #007330;
-  padding: 6px 20px;
-}
-.allBookings {
-  position: fixed;
-  width: 100%;
-  height: 100vh;
-  background: #0000007a;
-  top: 0;
-  left: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.allBookingModal {
-  max-width: 600px;
-  width: 60%;
-  min-height: 300px;
-  max-height: 500px;
-  overflow-x: scroll;
-  padding: 0px 20px;
-  background: #3c3c3c;
-  border-radius: 20px;
-  color: #fff;
-  position: relative;
-}
-.item {
-  border-bottom: 1px solid #ccc;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0px;
-}
-.iconbox {
-  display: flex;
-  gap: 10px;
-}
-.iconbox > div {
-  cursor: pointer;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  position: sticky;
-  padding: 10px 0px;
-  border-bottom: 2px solid #fff;
-  top: 0;
-  background: #3c3c3c;
-}
-.bottom {
-  position: sticky;
-  bottom: -10px;
-  left: 0;
-  padding: 10px;
-  background: #3c3c3c;
-  display: flex;
-  justify-content: center;
-}
-.items{
-  min-height: 200px;
-}
-.btnbox {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
+  gap: 6px;
 }
 
 .day {
-  background: #f9fafb;
-  border-radius: 10px;
-  padding: 10px;
+  background: #334155;
+  border-radius: 12px;
+  height: 48px;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 0.2s ease;
-  color: #000;
+  transition: transform 0.2s ease, background-color 0.2s ease;
   position: relative;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.05);
 }
-.day:hover {
-  transform: translateY(-2px);
+
+.day:active {
+  transform: scale(0.92);
 }
 
 .day.band {
-  background: #f6abab;
-  color: #991b1b;
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(220, 38, 38, 0.4);
 }
 .day.bosh {
-  background: #ecfdf5;
-  color: #065f46;
+  background: rgba(37, 99, 235, 0.15); /* Available days use subtle blue tint */
+  color: #93c5fd;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.day.disabled {
+  background: rgba(15, 23, 42, 0.5) !important;
+  color: #475569 !important;
+  border: 1px dashed rgba(71, 85, 105, 0.3) !important;
+  cursor: default !important;
+}
+.day.disabled:active {
+  transform: none !important;
 }
 
 .day-number {
-  font-weight: 600;
+  font-size: 14px;
+}
+.day small {
   font-size: 10px;
 }
-
-.day small {
-  display: block;
-  margin-top: 4px;
-  font-size: 11px;
-}
-
 .empty {
   visibility: hidden;
 }
 
+<<<<<<< Updated upstream
 
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -471,205 +378,138 @@ input[type="number"] {
 .tooltip-btn {
   margin-top: 8px;
   width: 100%;
+=======
+/* BUTTONS */
+.primary-btn, .next, .prev {
+>>>>>>> Stashed changes
   background: var(--primary-color);
+  color: #ffffff;
   border: none;
-  padding: 6px;
-  border-radius: 6px;
-}
-
-/* PAGE */
-.login-wrapper {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background: #0f0f0f;
-  font-family: system-ui;
-}
-
-/* CARD */
-.login-card {
-  width: 100%;
-  max-width: 360px;
-  background: #181818;
-  padding: 32px;
   border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  min-height: 48px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-/* TEXT */
-.title {
-  color: #fff;
-  font-size: 24px;
-}
-.subtitle {
-  color: #9ca3af;
-  font-size: 14px;
+.primary-btn:active, .next:active, .prev:active {
+  transform: scale(0.95);
+  background: var(--primary-color-hover);
 }
 
-/* MODAL */
-.modal-overlay {
+.cancel-btn {
+  background: #334155;
+  color: white;
+  min-height: 48px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  transition: transform 0.2s ease;
+}
+.cancel-btn:active {
+  transform: scale(0.95);
+  background: #475569;
+}
+
+/* INPUTS */
+input, select {
+  width: 100%;
+  background: #334155;
+  border: 1px solid var(--border-color);
+  color: white;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+input::placeholder {
+  color: #94a3b8;
+}
+
+/* BOTTOM SHEET MODAL */
+.sheet-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: grid;
-  place-items: center;
-}
-
-.modal {
-  background: #181818;
-  padding: 24px;
-  border-radius: 14px;
-  width: 300px;
-  text-align: center;
-}
-
-.modal h3 {
-  color: #fff;
-  margin-bottom: 12px;
-}
-
-.question {
-  font-size: 22px;
-  color: #4caf50;
-  margin-bottom: 12px;
-}
-
-/* ERROR */
-.error {
-  color: #ff4d4f;
-  font-size: 13px;
-  margin-top: 6px;
-}
-
-/* ACTIONS */
-.modal-actions {
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
-}
-.loading {
-  color: #fff;
-  text-align: center;
-}
-
-.cancel {
-  background: #333;
-}
-
-.right {
-  display: flex;
-  flex-direction: column;
   align-items: flex-end;
-  justify-content: space-between;
-  position: relative;
+  backdrop-filter: blur(4px);
 }
 
-.lines {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  cursor: pointer;
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10000;
+  background: var(--card-bg);
+  width: 100%;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  border-top: 1px solid var(--border-color);
+  /* Appears from bottom logic is usually dynamically handled via vue `<transition>` */
 }
-.line {
-  width: 5px;
+
+.sheet-handle {
+  width: 40px;
   height: 5px;
+  background: #475569;
   border-radius: 5px;
-  background: #fff;
-}
-.menu-drop {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #2b2b2b;
-  border-radius: 10px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-shadow: 0 10px 100px rgba(0, 0, 0);
-  z-index: 99;
+  margin: 0 auto 24px auto;
 }
 
-.menu-drop button {
-  background: none;
-  border: none;
+.sheet-header {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
   color: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
-  text-align: left;
-  cursor: pointer;
+  text-align: center;
 }
 
-.menu-drop button:hover {
-  background: #3a3a3a;
+/* VUE TRANSITIONS */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 
-@media (max-width: 600px) {
-  .page {
-    padding: 12px;
-  }
-
-  .days {
-    gap: 2px;
-  }
-
-  .day {
-    height: 36px;
-    gap: 4px;
-    width: 36px;
-  }
+.slide-up-enter-active, .slide-up-leave-active {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-up-enter-from, .slide-up-leave-to {
+  transform: translateY(100%);
 }
 
-@media (max-width: 500px) {
-  .day {
-    background: #f9fafb;
-    border-radius: 10px;
-    width: 100%;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.2s ease;
-    color: #000;
-    position: relative;
-  }
+.view-enter-active, .view-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  width: 100%;
 }
-@media (max-width: 480px) {
-  .allBookingModal {
-    width: 95%;
-  }
-  .container{
-    padding: 10px;
-  }
+.view-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
 }
-
-@media (max-width: 420px) {
-  .navbar {
-    padding: 16px 10px;
-  }
-  .nav-brand > h1 {
-    font-size: 24px;
-  }
-  .add-btn {
-    padding: 8px 10px;
-    color: #ffffff;
-  }
-  .next,
-  .prev {
-    padding: 4px 8px;
-  }
-  .day {
-    width: 34px;
-    height: 34px;
-    margin: 0 auto;
-  }
-  .right {
-    flex-direction: row-reverse;
-    justify-content: center;
-    align-items: center;
-  }
+.view-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
