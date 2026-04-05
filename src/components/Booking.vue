@@ -1,49 +1,98 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal">
-      <h3>
-        {{ mode === "create" ? "➕ Band qilish" : "✏️ Bandni tahrirlash" }}
+  <transition name="fade">
+    <div v-if="isOpen" class="sheet-overlay" @click.self="close"></div>
+  </transition>
+  
+  <transition name="slide-up">
+    <div v-if="isOpen" class="bottom-sheet z-max">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-header">
+        {{ mode === "create" ? "➕ Yangi Bandlik" : "✏️ Bandni tahrirlash" }}
       </h3>
 
-      <input v-model="form.OrderedUser" placeholder="Buyurtmachi ismi" />
+      <div class="sheet-actions">
+        <input 
+          v-model="form.OrderedUser" 
+          placeholder="Buyurtmachi ismi" 
+          class="mb-2" 
+        />
 
-      <input type="date" v-model="form.startDate" placeholder="Keladigan kun" />
-      <input type="date" v-model="form.endDate" placeholder="Ketadigan kun" />
+        <div class="date-row">
+          <input 
+            type="date" 
+            v-model="form.startDate" 
+            placeholder="Keladigan qaysi kun" 
+            class="mb-2 w-half" 
+          />
+          <input 
+            type="date" 
+            v-model="form.endDate" 
+            placeholder="Ketadigan qaysi kun" 
+            class="mb-2 w-half" 
+          />
+        </div>
 
-      <input
-        type="number"
-        v-model.number="form.totalPrice"
-        placeholder="Umumiy narx"
-      />
-      <input type="number" v-model.number="form.avans" placeholder="Avans" />
+        <div class="price-row">
+          <input
+            type="number"
+            v-model.number="form.totalPrice"
+            placeholder="Umumiy narx"
+            class="mb-2 w-half"
+          />
+          <input 
+            type="number" 
+            v-model.number="form.avans" 
+            placeholder="Avans" 
+            class="mb-2 w-half"
+          />
+        </div>
 
-      <input v-model="form.phone1" placeholder="Telefon 1" />
-      <input v-model="form.phone2" placeholder="Telefon 2" />
+        <input v-model="form.phone1" placeholder="Telefon 1" class="mb-2" />
+        <input v-model="form.phone2" placeholder="Telefon 2 (Ixtiyoriy)" class="mb-4" />
 
-      <!-- <select v-model="form.isActive">
-        <option :value="true">Faol</option>
-        <option :value="false">Faol emas</option>
-      </select> -->
+        <div class="action-buttons">
+          <button class="primary-btn w-full" @click="submit">
+            {{ mode === "create" ? "Saqlash" : "Yangilash" }}
+          </button>
+          
+          <button v-if="mode === 'edit'" class="danger-btn w-full mt-2" @click="showDeleteOptions = true">
+            🗑️ O'chirish
+          </button>
 
-      <div class="actions">
-        <button class="save" @click="submit">
-          {{ mode === "create" ? "Saqlash" : "Yangilash" }}
-        </button>
-        <button class="cancel" @click="$emit('close')">Bekor qilish</button>
+          <button class="cancel-btn w-full mt-2" @click="close">Bekor qilish</button>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
+
+  <!-- Nested Deletion Choices -->
+  <transition name="fade">
+    <div v-if="showDeleteOptions" class="sheet-overlay z-super"></div>
+  </transition>
+  <transition name="slide-up">
+    <div v-if="showDeleteOptions" class="bottom-sheet z-super-top">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-header danger-text">Bandlikni O'chirish</h3>
+      <p class="text-center text-muted mb-4">Ushbu jarayon uchun qaysi o'chirish usulini tanlaysiz?</p>
+      
+      <div class="sheet-actions">
+        <button class="primary-btn w-full mb-3" @click="fireDelete('keep')">🗄️ Tarixni saqlash</button>
+        <button class="danger-btn w-full mb-3" @click="fireDelete('full')">🗑️ O'chirish</button>
+        <button class="cancel-btn w-full mt-2" @click="showDeleteOptions = false">Bekor qilish</button>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script>
 import api from "../utils/axios";
 import { useToast } from "vue-toastification";
 const toast = useToast();
+
 export default {
   props: {
     selected: {
-      type: String,
-      required: true,
+      type: [String, Number],
     },
     mode: {
       type: String,
@@ -51,10 +100,13 @@ export default {
     },
     dachaId: String,
     booking: Object,
+    defaultStartDate: String,
   },
 
   data() {
     return {
+      isOpen: false,
+      showDeleteOptions: false,
       form: {
         OrderedUser: "",
         startDate: "",
@@ -69,6 +121,10 @@ export default {
   },
 
   mounted() {
+    setTimeout(() => {
+      this.isOpen = true;
+    }, 10);
+
     if (this.mode === "edit" && this.booking) {
       this.form = {
         OrderedUser: this.booking.OrderedUser,
@@ -80,17 +136,26 @@ export default {
         phone2: this.booking.phone2,
         isActive: this.booking.isActive,
       };
+    } else if (this.defaultStartDate) {
+      this.form.startDate = this.defaultStartDate;
     }
   },
 
   methods: {
+    close() {
+      this.isOpen = false;
+      this.showDeleteOptions = false;
+      setTimeout(() => {
+        this.$emit('close');
+      }, 300);
+    },
     async submit() {
       try {
         const payload = {
           dachaId: this.dachaId,
           OrderedUser: this.form.OrderedUser,
-          startDate: this.form.startDate, // 🔥 STRING
-          endDate: this.form.endDate, // 🔥 STRING
+          startDate: this.form.startDate,
+          endDate: this.form.endDate,
           totalPrice: this.form.totalPrice,
           avans: this.form.avans,
           phone1: this.form.phone1,
@@ -106,57 +171,80 @@ export default {
         }
 
         this.$emit("saved");
-        this.$emit("close");
+        this.close();
       } catch (e) {
-        console.log("API ERROR:", e.response?.data);
-        toast.error(e.response?.data?.message || "Xatolik yuz berdi ❌");
+        console.error("API ERROR:", e);
+        toast.error(e.message || "Xatolik yuz berdi ❌");
       }
     },
+    async fireDelete(modeStr) {
+      try {
+        const res = await api.delete(`/booking/${this.booking._id}?mode=${modeStr}`);
+        toast.success(modeStr === 'full' ? "To'liq bazadan o'chirildi ✅" : "Tarixga arxivlandi 🗄️");
+        this.$emit("saved");
+        this.close();
+      } catch (e) {
+        toast.error(e.message || "Xatolik yuz berdi");
+      }
+    }
   },
 };
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+.z-max {
+  z-index: 10000;
+}
+.z-super {
+  z-index: 10001;
+}
+.z-super-top {
+  z-index: 10002;
+  background: var(--card-bg);
+}
+.sheet-overlay {
+  z-index: 9999;
+}
+.bottom-sheet {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-2 { margin-top: 8px; }
+.w-full { width: 100%; }
+
+.date-row, .price-row {
   display: flex;
+  gap: 10px;
+}
+.w-half { 
+  flex: 1; 
+  min-width: 0; /* Avoid flex overflow on tiny device dates */
+  height: 48px;
+}
+
+.text-center { text-align: center; }
+.text-muted { color: #94a3b8; font-size: 13px; line-height: 1.4; }
+.danger-text { color: #fca5a5; }
+
+.danger-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  min-height: 48px;
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0 20px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
-
-.modal {
-  background: #1e1e1e;
-  color: #fff;
-  padding: 24px;
-  border-radius: 14px;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-input,
-select {
-  padding: 8px;
-  border-radius: 8px;
-  border: none;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.save {
-  background: #4caf50;
-  color: #fff;
-}
-
-.cancel {
-  background: #444;
-  color: #fff;
+.danger-btn:active {
+  transform: scale(0.95);
+  background: #b91c1c;
 }
 </style>
