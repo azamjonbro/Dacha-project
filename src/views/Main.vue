@@ -120,7 +120,7 @@ export default {
   flex: 1;
   position: relative;
   overflow-y: scroll;
-  padding: 40px ;
+  padding-top: 40px ;
 }
 
 .bottom-nav {
