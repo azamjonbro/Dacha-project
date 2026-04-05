@@ -161,8 +161,6 @@ li {
   visibility: hidden;
 }
 
-<<<<<<< Updated upstream
-
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -378,10 +376,11 @@ input[type="number"] {
 .tooltip-btn {
   margin-top: 8px;
   width: 100%;
-=======
+}
+
 /* BUTTONS */
 .primary-btn, .next, .prev {
->>>>>>> Stashed changes
+
   background: var(--primary-color);
   color: #ffffff;
   border: none;
