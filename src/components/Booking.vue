@@ -12,8 +12,8 @@
 
       <div class="sheet-actions">
         <input 
-          v-model="form.OrderedUser" 
-          placeholder="Buyurtmachi ismi" 
+          v-model="form.name" 
+          placeholder="Mijoz ismi" 
           class="mb-2" 
         />
 
@@ -21,13 +21,13 @@
           <input 
             type="date" 
             v-model="form.startDate" 
-            placeholder="Keladigan qaysi kun" 
+            placeholder="Keladigan sana" 
             class="mb-2 w-half" 
           />
           <input 
             type="date" 
             v-model="form.endDate" 
-            placeholder="Ketadigan qaysi kun" 
+            placeholder="Ketadigan sana" 
             class="mb-2 w-half" 
           />
         </div>
@@ -41,14 +41,13 @@
           />
           <input 
             type="number" 
-            v-model.number="form.avans" 
-            placeholder="Avans" 
+            v-model.number="form.prepayment" 
+            placeholder="Avans (To'lov)" 
             class="mb-2 w-half"
           />
         </div>
 
-        <input v-model="form.phone1" placeholder="Telefon 1" class="mb-2" />
-        <input v-model="form.phone2" placeholder="Telefon 2 (Ixtiyoriy)" class="mb-4" />
+        <input v-model="form.phone" placeholder="Telefon raqami" class="mb-4" />
 
         <div class="action-buttons">
           <button class="primary-btn w-full" @click="submit">
@@ -108,13 +107,12 @@ export default {
       isOpen: false,
       showDeleteOptions: false,
       form: {
-        OrderedUser: "",
+        name: "",
         startDate: "",
         endDate: "",
         totalPrice: null,
-        avans: null,
-        phone1: "",
-        phone2: "",
+        prepayment: null,
+        phone: "",
         isActive: true,
       },
     };
@@ -127,13 +125,12 @@ export default {
 
     if (this.mode === "edit" && this.booking) {
       this.form = {
-        OrderedUser: this.booking.OrderedUser,
-        startDate: this.booking.startDate.slice(0, 10),
-        endDate: this.booking.endDate.slice(0, 10),
+        name: this.booking.name || this.booking.OrderedUser || "",
+        startDate: this.booking.startDate?.slice(0, 10),
+        endDate: this.booking.endDate?.slice(0, 10),
         totalPrice: this.booking.totalPrice,
-        avans: this.booking.avans,
-        phone1: this.booking.phone1,
-        phone2: this.booking.phone2,
+        prepayment: this.booking.prepayment || this.booking.avans || 0,
+        phone: this.booking.phone || this.booking.phone1 || "",
         isActive: this.booking.isActive,
       };
     } else if (this.defaultStartDate) {
@@ -153,13 +150,12 @@ export default {
       try {
         const payload = {
           dachaId: this.dachaId,
-          OrderedUser: this.form.OrderedUser,
+          name: this.form.name,
           startDate: this.form.startDate,
           endDate: this.form.endDate,
           totalPrice: this.form.totalPrice,
-          avans: this.form.avans,
-          phone1: this.form.phone1,
-          phone2: this.form.phone2,
+          prepayment: this.form.prepayment,
+          phone: this.form.phone,
         };
 
         if (this.mode === "create") {

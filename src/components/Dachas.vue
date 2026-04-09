@@ -15,7 +15,7 @@
       <div >
         <h2 class="title">{{ dacha.name }}</h2>
         <p class="status" :class="todayStatus(dacha).status">
-          Bugun: {{ todayStatus(dacha).status.toUpperCase() }}
+          Bugun: {{ formatTodayStatus(todayStatus(dacha).status) }}
         </p>
       </div>
 
@@ -83,6 +83,7 @@
           @touchmove="cancelPress"
         >
           <span class="day-number">{{ day }}</span>
+          <div v-if="getDayStatus(dacha, day).status === 'pending'" class="pending-indicator"></div>
         </div>
       </div>
       
@@ -91,11 +92,14 @@
         <div class="day-action-bar" v-if="activeDay && activeDay.dachaId === dacha._id">
            <div class="action-info" v-if="getBookingInfo(dacha, activeDay.day)">
              <div class="action-header">
-                <span class="action-title bad">❌ Band qilingan</span>
+                <span :class="['action-title', getBookingInfo(dacha, activeDay.day).status === 'pending' ? 'pending-text' : 'bad']">
+                  {{ getBookingInfo(dacha, activeDay.day).status === 'pending' ? '🔔 So\'rov kutilmoqda' : '❌ Band qilingan' }}
+                </span>
                 <span>{{ activeDay.day }} {{ monthName(dacha) }}</span>
              </div>
-             <p class="action-client">Buyurtmachi: <strong>{{ getBookingInfo(dacha, activeDay.day).OrderedUser }}</strong></p>
-             <button class="primary-btn mt-2 w-full" @click="editExistingBooking(dacha, activeDay.day)">Tahrirlash</button>
+             <p class="action-client">Mijoz: <strong>{{ getBookingInfo(dacha, activeDay.day).name || getBookingInfo(dacha, activeDay.day).OrderedUser }}</strong></p>
+             <button v-if="getBookingInfo(dacha, activeDay.day).status === 'pending'" class="primary-btn mt-2 w-full" @click="goToDashboard(dacha, activeDay.day)">Dashboarddan tasdiqlash</button>
+             <button v-else class="primary-btn mt-2 w-full" @click="editExistingBooking(dacha, activeDay.day)">Tahrirlash</button>
            </div>
            
            <div class="action-info" v-else>
@@ -145,6 +149,52 @@
     </div>
   </div>
 
+  <transition name="fade">
+    <div v-if="showEditDachaModal" class="sheet-overlay" @click.self="closeEditDachaModal"></div>
+  </transition>
+  <transition name="slide-up">
+    <div v-if="showEditDachaModal" class="bottom-sheet" style="z-index: 10000; min-height: 50vh;">
+      <div class="sheet-handle" @click="closeEditDachaModal"></div>
+      <h3 class="sheet-header">Dachani tahrirlash</h3>
+      
+      <div style="display:flex; flex-direction:column; gap: 12px; margin-top: 16px;">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Nomi</label>
+          <input class="modern-input" type="text" v-model="editDachaPayload.name" />
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Manzil (Manzil Namangan, Nanay bo'lsa kiriting)</label>
+          <input class="modern-input" type="text" v-model="editDachaPayload.location" placeholder="Nanay, Namangan" />
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Media (Rasm va Video)</label>
+          <MediaDropzone 
+            v-model:images="editDachaPayload.images" 
+            v-model:video="editDachaPayload.video"
+            @uploading="mediaUploading = $event"
+          />
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <FeatureSelector v-model="editDachaPayload.features" />
+        </div>
+      </div>
+      
+      <div class="sheet-actions" style="margin-top: 24px;">
+        <button 
+          class="primary-btn w-full mb-3" 
+          @click="saveEditedDacha" 
+          :disabled="mediaUploading"
+        >
+          {{ mediaUploading ? "Fayl yuklanmoqda..." : "Saqlash" }}
+        </button>
+        <button class="cancel-btn w-full mt-2" @click="closeEditDachaModal">Ortga</button>
+      </div>
+    </div>
+  </transition>
+
   <p v-if="loading" class="loading">Yuklanmoqda...</p>
   <Booking
     v-if="bookingModal"
@@ -169,16 +219,16 @@
       </div>
       <div class="items">
         <div class="item" v-for="item in AllShowBookingItems" :key="item._id">
-          <p class="name">{{ item.OrderedUser }}</p>
+          <p class="name">{{ item.name || item.OrderedUser }}</p>
 
           <div class="date">
-            <p>{{ formattedDate(item.startDate) }}</p>
-            <p>{{ formattedDate(item.endDate) }}</p>
+            <p>{{ $dView(item.startDate) }}</p>
+            <p>{{ $dView(item.endDate) }}</p>
           </div>
 
           <div class="price">
             <p>{{ formatMoney(item.totalPrice) }}</p>
-            <p>{{ formatMoney(item.avans) }}</p>
+            <p>{{ formatMoney(item.prepayment || item.avans) }}</p>
           </div>
 
           <div class="iconbox">
@@ -200,11 +250,15 @@
 <script>
 import api from "../utils/axios";
 import Booking from "./Booking.vue";
+import MediaDropzone from "./MediaDropzone.vue";
+import FeatureSelector from "./FeatureSelector.vue";
 import { useToast } from "vue-toastification";
 const toast = useToast();
 export default {
   components: {
     Booking,
+    MediaDropzone,
+    FeatureSelector
   },
   data() {
     return {
@@ -219,7 +273,9 @@ export default {
       isLongPress: false,
       selectDeleteDacha: null,
       showAllBookigStatus: false,
-      showDeleteDachaMessage: false,
+      showEditDachaModal: false,
+      editDachaPayload: { _id: null, name: "", location: "", images: [], video: "", features: [] },
+      mediaUploading: false,
       showDeleteBookingMessage: false,
       isCreate: "create",
       deleteBookingId: null,
@@ -229,6 +285,38 @@ export default {
   },
 
   methods: {
+    editDacha(dacha) {
+      this.activeMenu = null;
+      this.editDachaPayload = {
+        _id: dacha._id,
+        name: dacha.name,
+        location: dacha.location || "",
+        images: Array.isArray(dacha.images) ? [...dacha.images] : [],
+        video: dacha.video || "",
+        features: Array.isArray(dacha.features) ? [...dacha.features] : []
+      };
+      this.showEditDachaModal = true;
+    },
+    closeEditDachaModal() {
+      this.showEditDachaModal = false;
+    },
+    async saveEditedDacha() {
+      try {
+        const payload = { ...this.editDachaPayload };
+        await api.put(`/dacha/${payload._id}`, { 
+          name: payload.name, 
+          location: payload.location,
+          images: payload.images, 
+          video: payload.video,
+          features: payload.features
+        });
+        toast.success("Dacha tahrirlandi!");
+        this.closeEditDachaModal();
+        this.getAllDachas();
+      } catch (e) {
+        toast.error("Xatolik yuz berdi");
+      }
+    },
     startPress(dachaId, day) {
       this.isLongPress = false;
       this.pressTimer = setTimeout(() => {
@@ -245,9 +333,9 @@ export default {
       if (this.isLongPress) {
         // Trigger action immediately on long press
         const booking = this.getBookingInfo(dacha, day);
-        if (booking) {
+        if (booking && booking.status === 'confirmed') {
           this.editExistingBooking(dacha, day);
-        } else {
+        } else if (!booking) {
           this.bookNewDay(dacha, day);
         }
       } else {
@@ -279,20 +367,24 @@ export default {
     },
     async getAllDachas() {
       this.loading = true;
-      const now = new Date();
+      try {
+        const res = await api.get("/dacha");
+        const list = res?.data || [];
+        const now = new Date();
 
-      const res = await api.get("/dacha");
-
-      this.dachas = res.data.map((d) => ({
-        ...d,
-        booking: Array.isArray(d.booking) ? d.booking : [],
-        calendar: {
-          year: now.getFullYear(),
-          month: now.getMonth(),
-        },
-      }));
-
-      this.loading = false;
+        this.dachas = list.map((d) => ({
+          ...d,
+          booking: Array.isArray(d.booking) ? d.booking : [],
+          calendar: {
+            year: now.getFullYear(),
+            month: now.getMonth(),
+          },
+        }));
+      } catch (e) {
+        console.error("Failed to load dachas:", e);
+      } finally {
+        this.loading = false;
+      }
     },
     showAllBooking(item) {
       this.showAllBookigStatus = true;
@@ -338,25 +430,6 @@ export default {
         "Noyabr",
         "Dekabr",
       ][d.calendar.month];
-    },
-    formattedDate(date) {
-      const d = new Date(date);
-      const day = d.getDate();
-      const months = [
-        "Yanvar",
-        "Fevral",
-        "Mart",
-        "Aprel",
-        "May",
-        "Iyun",
-        "Iyul",
-        "Avgust",
-        "Sentabr",
-        "Oktabr",
-        "Noyabr",
-        "Dekabr",
-      ];
-      return `${day}-${months[d.getMonth()]}`;
     },
     closeAllBookingModalFunct() {
       this.showAllBookigStatus = false;
@@ -412,10 +485,10 @@ export default {
     },
 
     getStatusByDate(dacha, date) {
-      for (const b of dacha.booking) {
-        if (this.isInRange(date, b.startDate, b.endDate)) {
-          return { status: "band" };
-        }
+      const booking = dacha.booking.find((b) => this.isInRange(date, b.startDate, b.endDate));
+      if (booking) {
+        // If it's explicitly pending, use pending. Otherwise default to confirmed.
+        return { status: booking.status === "pending" ? "pending" : "confirmed" };
       }
       return { status: "bosh" };
     },
@@ -438,15 +511,26 @@ export default {
       return this.getStatusByDate(dacha, this.formatDate(dacha, today));
     },
 
+    formatTodayStatus(status) {
+      if (status === 'pending') return 'Kutilmoqda 🔔';
+      if (status === 'bosh') return 'Bo\'sh ✅';
+      return 'Band ❌'; // Defaults to confirmed
+    },
+
+    goToDashboard(dacha, day) {
+      const booking = this.getBookingInfo(dacha, day);
+      if (booking) {
+        this.$router.push(`/?confirm=${booking._id}`);
+      } else {
+        this.$router.push('/');
+      }
+    },
+
     toggleTooltip(dachaId, day) {
       this.activeDay =
         this.activeDay?.day === day && this.activeDay?.dachaId === dachaId
           ? null
           : { dachaId, day };
-    },
-
-    formatHuman(date) {
-      return new Date(date).toLocaleDateString("uz-UZ");
     },
 
     formatMoney(val) {
@@ -477,11 +561,12 @@ export default {
   z-index: 10;
 }
 .day-action-bar {
-  background: #334155;
+  background: #1e293b;
   border-radius: 16px;
   padding: 16px;
   margin-top: 12px;
   border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 .action-header {
   display: flex;
@@ -492,6 +577,8 @@ export default {
 }
 .action-title.bad { color: #fca5a5; }
 .action-title.good { color: #86efac; }
+.action-title.pending-text { color: #fbbf24; }
+
 .action-client {
   font-size: 13px;
   color: var(--text-muted);
@@ -499,6 +586,63 @@ export default {
 .action-client strong { color: white; }
 .w-full { width: 100%; }
 .mt-2 { margin-top: 8px; }
+
+/* Calendar Day States */
+.day.confirmed {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.3)) !important;
+  color: #fca5a5 !important;
+  border: 1.5px solid #ef4444 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15), inset 0 0 8px rgba(239, 68, 68, 0.1);
+  font-weight: 700;
+  position: relative;
+}
+
+.day.confirmed::after {
+  content: '✕';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 8px;
+  opacity: 0.6;
+}
+
+.day.pending {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.15));
+  color: #fbbf24;
+  border: 1px dashed #fbbf24;
+  position: relative;
+  font-weight: 500;
+}
+
+.pending-indicator {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: #fbbf24;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #fbbf24;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.day.bosh {
+  background: rgba(15, 23, 42, 0.3);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+
+.status.confirmed { color: #f87171; }
+.status.pending { color: #fbbf24; }
+.status.bosh { color: #4ade80; }
 
 /* Menu Styling */
 .right {
@@ -557,3 +701,4 @@ export default {
   background: rgba(255,255,255,0.1);
 }
 </style>
+

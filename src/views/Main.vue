@@ -3,7 +3,7 @@
     <div class="content-area">
       <transition name="view">
         <DashboardView v-if="activeTab === 'dashboard'" />
-        <DachasView v-else-if="activeTab === 'dachas'" />
+        <DachasView v-else-if="activeTab === 'dachas'" :key="refreshKey" />
         <StatisticsView v-else-if="activeTab === 'statistics'" />
         <HistoryView v-else-if="activeTab === 'history'" />
       </transition>
@@ -54,9 +54,24 @@
       <div v-if="showSheet" class="bottom-sheet z-max">
         <div class="sheet-handle"></div>
         <h3 class="sheet-header">Yangi Dacha qo'shish</h3>
-        <div class="sheet-actions">
+        <div class="sheet-content">
           <input type="text" v-model="newDacha.name" placeholder="Dacha nomi..." class="sheet-input mb-3"/>
-          <button class="primary-btn w-full mb-3" @click="createDacha">Qo'shish</button>
+          <input type="text" v-model="newDacha.location" placeholder="Manzil (masalan: Nanay)..." class="sheet-input mb-3"/>
+          <MediaDropzone 
+            v-model:images="newDacha.images" 
+            v-model:video="newDacha.video"
+            @uploading="mediaUploading = $event"
+          />
+          <FeatureSelector v-model="newDacha.features" class="mt-3"/>
+        </div>
+        <div class="sheet-actions mt-4">
+          <button 
+            class="primary-btn w-full mb-3" 
+            @click="createDacha"
+            :disabled="mediaUploading"
+          >
+            {{ mediaUploading ? "Fayl yuklanmoqda..." : "Qo'shish" }}
+          </button>
           <button class="cancel-btn w-full" @click="showSheet = false">Bekor qilish</button>
         </div>
       </div>
@@ -74,13 +89,23 @@ export default {
     DashboardView: defineAsyncComponent(() => import('../components/Dashboard.vue')),
     DachasView: defineAsyncComponent(() => import('../components/Dachas.vue')),
     StatisticsView: defineAsyncComponent(() => import('../components/Statistics.vue')),
-    HistoryView: defineAsyncComponent(() => import('../components/History.vue'))
+    HistoryView: defineAsyncComponent(() => import('../components/History.vue')),
+    MediaDropzone: defineAsyncComponent(() => import('../components/MediaDropzone.vue')),
+    FeatureSelector: defineAsyncComponent(() => import('../components/FeatureSelector.vue'))
   },
   data() {
     return {
       activeTab: 'dachas', // Default
       showSheet: false,
-      newDacha: { name: '' }
+      mediaUploading: false,
+      refreshKey: 0,
+      newDacha: { 
+        name: '',
+        location: '',
+        images: [],
+        video: '',
+        features: []
+      }
     }
   },
   methods: {
@@ -96,10 +121,18 @@ export default {
           toast.error("Admin topilmadi ❌")
           return
         }
-        await api.post("/dacha", { name: this.newDacha.name, adminId })
+        await api.post("/dacha", { 
+          name: this.newDacha.name, 
+          location: this.newDacha.location,
+          adminId,
+          images: this.newDacha.images,
+          video: this.newDacha.video,
+          features: this.newDacha.features
+        })
         toast.success("Dacha muvaffaqiyatli qo‘shildi ✅")
         this.showSheet = false
-        this.newDacha.name = ""
+        this.newDacha = { name: '', location: '', images: [], video: '', features: [] }
+        this.refreshKey++ // Force list refresh
       } catch (error) {
         toast.error(error?.message || "Xatolik yuz berdi ❌")
       }
@@ -214,4 +247,11 @@ export default {
   bottom: 0;
   left: 0;
 }
+.sheet-content {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
 </style>
