@@ -85,8 +85,8 @@
               <strong>❌ Band</strong>
               <p>Kim: {{ getBookingInfo(dacha, day).OrderedUser }}</p>
               <p>
-                {{ formatHuman(getBookingInfo(dacha, day).startDate) }} →
-                {{ formatHuman(getBookingInfo(dacha, day).endDate) }}
+                {{ $dView(getBookingInfo(dacha, day).startDate) }} →
+                {{ $dView(getBookingInfo(dacha, day).endDate) }}
               </p>
               <p>
                 Summa {{ formatMoney(getBookingInfo(dacha, day).totalPrice) }}
@@ -161,8 +161,8 @@
           <p class="name">{{ item.OrderedUser }}</p>
 
           <div class="date">
-            <p>{{ formattedDate(item.startDate) }}</p>
-            <p>{{ formattedDate(item.endDate) }}</p>
+            <p>{{ $dView(item.startDate) }}</p>
+            <p>{{ $dView(item.endDate) }}</p>
           </div>
 
           <div class="price">
@@ -280,25 +280,6 @@ export default {
         "Dekabr",
       ][d.calendar.month];
     },
-    formattedDate(date) {
-      const d = new Date(date);
-      const day = d.getDate();
-      const months = [
-        "Yanvar",
-        "Fevral",
-        "Mart",
-        "Aprel",
-        "May",
-        "Iyun",
-        "Iyul",
-        "Avgust",
-        "Sentabr",
-        "Oktabr",
-        "Noyabr",
-        "Dekabr",
-      ];
-      return `${day}-${months[d.getMonth()]}`;
-    },
     closeAllBookingModalFunct() {
       this.showAllBookigStatus = false;
     },
@@ -384,10 +365,6 @@ export default {
         this.activeDay?.day === day && this.activeDay?.dachaId === dachaId
           ? null
           : { dachaId, day };
-    },
-
-    formatHuman(date) {
-      return new Date(date).toLocaleDateString("uz-UZ");
     },
 
     formatMoney(val) {

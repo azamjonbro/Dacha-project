@@ -130,7 +130,7 @@ li {
   transform: scale(0.92);
 }
 
-.day.band {
+.day.confirmed {
   background: rgba(220, 38, 38, 0.2);
   color: #fca5a5;
   border: 1px solid rgba(220, 38, 38, 0.4);

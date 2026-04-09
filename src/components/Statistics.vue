@@ -145,8 +145,7 @@ export default {
       }
       
       const labels = daily.map(d => {
-        const date = new Date(d._id);
-        return date.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
+        return this.$dView(d._id);
       });
       const data = daily.map(d => d.total);
       

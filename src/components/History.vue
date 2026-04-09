@@ -8,17 +8,24 @@
     <div class="segment-control">
       <button 
         class="segment-btn" 
-        :class="{ active: activeSubTab === 'active' }" 
-        @click="activeSubTab = 'active'"
+        :class="{ active: activeSubTab === 'confirmed' }" 
+        @click="activeSubTab = 'confirmed'"
       >
-        Jarayonda
+        Tasdiqlangan
       </button>
       <button 
         class="segment-btn" 
-        :class="{ active: activeSubTab === 'completed' }" 
-        @click="activeSubTab = 'completed'"
+        :class="{ active: activeSubTab === 'finished' }" 
+        @click="activeSubTab = 'finished'"
       >
-        Yakunlangan
+        Tamomlangan
+      </button>
+      <button 
+        class="segment-btn" 
+        :class="{ active: activeSubTab === 'other' }" 
+        @click="activeSubTab = 'other'"
+      >
+        Boshqa
       </button>
     </div>
 
@@ -40,29 +47,30 @@
           v-for="booking in displayedHistory" 
           :key="booking._id" 
           class="card history-card" 
-          :class="{ inactive: !booking.isActive }"
+          :class="{ inactive: booking.status === 'cancelled' }"
         >
           <div class="card-left">
-            <div class="avatar">{{ booking.OrderedUser?.charAt(0).toUpperCase() || 'M' }}</div>
+            <div class="avatar" :class="booking.status">
+              {{ (booking.name || booking.OrderedUser || 'M').charAt(0).toUpperCase() }}
+            </div>
             <div class="info">
-              <h4>{{ booking.OrderedUser || 'Mijoz' }}</h4>
+              <h4>{{ booking.name || booking.OrderedUser || 'Mijoz' }}</h4>
               
               <!-- User phone representation -->
-              <p class="phone" v-if="booking.phone1 || booking.phone2">
-                📞 {{ booking.phone1 || '--' }} 
-                <span v-if="booking.phone2">/ {{ booking.phone2 }}</span>
+              <p class="phone" v-if="booking.phone || booking.phone1">
+                📞 {{ booking.phone || booking.phone1 }}
               </p>
 
               <span class="dacha-name">{{ booking.dachaId?.name || "Noma'lum Dacha" }}</span>
               <span class="dates">
-                {{ formatDate(booking.startDate) }} — {{ formatDate(booking.endDate) }}
+                {{ $dView(booking.startDate) }} — {{ $dView(booking.endDate) }}
               </span>
             </div>
           </div>
           <div class="card-right">
             <span class="price">{{ formatMoney(booking.totalPrice) }}</span>
-            <span class="badge" :class="booking.isActive ? 'active' : 'completed'">
-              {{ booking.isActive ? 'Aktiv' : 'Yakunlangan' }}
+            <span class="badge" :class="booking.status">
+              {{ formatStatus(booking.status) }}
             </span>
           </div>
         </div>
@@ -79,18 +87,23 @@ export default {
     return {
       history: [],
       loading: true,
-      activeSubTab: "active" // 'active' or 'completed'
+      activeSubTab: "confirmed" // 'confirmed' or 'other'
     }
   },
   computed: {
-    activeHistory() {
-      return this.history.filter(b => b.isActive === true);
+    confirmedHistory() {
+      return this.history.filter(b => b.status === 'confirmed' || b.status === 'band');
     },
-    completedHistory() {
-      return this.history.filter(b => b.isActive === false);
+    finishedHistory() {
+      return this.history.filter(b => b.status === 'finished');
+    },
+    otherHistory() {
+      return this.history.filter(b => b.status === 'pending' || b.status === 'cancelled');
     },
     displayedHistory() {
-      return this.activeSubTab === "active" ? this.activeHistory : this.completedHistory;
+      if (this.activeSubTab === "confirmed") return this.confirmedHistory;
+      if (this.activeSubTab === "finished") return this.finishedHistory;
+      return this.otherHistory;
     }
   },
   async mounted() {
@@ -101,22 +114,12 @@ export default {
       this.loading = true;
       try {
         const res = await api.get('/booking/history');
-        if (res && res.data) {
-          this.history = res.data;
-        } else if (res && Array.isArray(res)) {
-          this.history = res;
-        } else {
-          this.history = res?.data || [];
-        }
+        this.history = res?.data || [];
       } catch (e) {
         console.error("Failed to list history:", e);
       } finally {
         this.loading = false;
       }
-    },
-    formatDate(dateStr) {
-      if (!dateStr) return "-";
-      return new Date(dateStr).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
     },
     formatMoney(val) {
       if (!val) return "0 UZS";
@@ -124,6 +127,16 @@ export default {
         return (val / 1000000).toFixed(1) + "M";
       }
       return Number(val).toLocaleString("uz-UZ");
+    },
+    formatStatus(status) {
+      const map = {
+        pending: 'Kutilmoqda',
+        confirmed: 'Tasdiqlangan',
+        band: 'Tasdiqlangan',
+        finished: 'Tamomlangan',
+        cancelled: 'Bekor qilingan'
+      };
+      return map[status] || status;
     }
   }
 }
@@ -195,8 +208,8 @@ export default {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: rgba(37,99,235,0.15);
-  color: #60a5fa;
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,6 +217,19 @@ export default {
   font-size: 18px;
   flex-shrink: 0;
 }
+.avatar.confirmed {
+  background: rgba(37,99,235,0.15);
+  color: #60a5fa;
+}
+.avatar.pending {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+.avatar.cancelled {
+  background: rgba(220, 38, 38, 0.15);
+  color: #f87171;
+}
+
 .info {
   display: flex;
   flex-direction: column;
@@ -247,13 +273,17 @@ export default {
   border-radius: 8px;
   font-weight: 600;
 }
-.active {
+.badge.confirmed {
   background: rgba(22,163,74,0.15);
   color: #4ade80;
 }
-.completed {
-  background: rgba(148,163,184,0.15);
-  color: #94a3b8;
+.badge.pending {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+.badge.cancelled {
+  background: rgba(220, 38, 38, 0.15);
+  color: #f87171;
 }
 
 .empty-state {
@@ -301,3 +331,4 @@ export default {
   100% { opacity: 0.6; }
 }
 </style>
+
