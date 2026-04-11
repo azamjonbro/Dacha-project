@@ -1,6 +1,89 @@
 <template>
-  <div
-    class="page"
+  <div class="dachas-container">
+    <!-- MODALS (Consolidated at top for maximum layout stability) -->
+    
+    <!-- Dacha Delete Modal -->
+    <transition name="fade">
+      <div v-if="showDeleteDachaMessage" class="sheet-overlay" @click.self="showDeleteDachaMessage = false"></div>
+    </transition>
+    <transition name="slide-up">
+      <div v-if="showDeleteDachaMessage" class="bottom-sheet z-super-top">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-header danger-text">Dachani O'chirish</h3>
+        <p class="text-center text-muted mb-4">Dacha va unga tegishli barcha ma'lumotlar bilan nima qilishni xohlaysiz?</p>
+        
+        <div class="sheet-actions">
+          <button class="primary-btn w-full mb-3" @click="deleteConfirm('keep')">🗄️ Tarixda saqlash</button>
+          <button class="danger-btn w-full mb-3" @click="deleteConfirm('full')">🗑️ O'chirish</button>
+          <button class="cancel-btn w-full mt-2" @click="cancel">Bekor qilish</button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Dacha Edit Modal -->
+    <transition name="fade">
+      <div v-if="showEditDachaModal" class="sheet-overlay" @click.self="closeEditDachaModal"></div>
+    </transition>
+    <transition name="slide-up">
+      <div v-if="showEditDachaModal" class="bottom-sheet z-super-top" style="min-height: 50vh;">
+        <div class="sheet-handle" @click="closeEditDachaModal"></div>
+        <h3 class="sheet-header">Dachani tahrirlash</h3>
+        
+        <div class="modal-form-content">
+          <div class="input-field">
+            <label>Nomi</label>
+            <input class="modern-input" type="text" v-model="editDachaPayload.name" />
+          </div>
+
+          <div class="input-field">
+            <label>Manzil</label>
+            <input class="modern-input" type="text" v-model="editDachaPayload.location" placeholder="Nanay, Namangan" />
+          </div>
+
+          <div class="input-field">
+            <label>Media (Rasm va Video)</label>
+            <MediaDropzone 
+              v-model:images="editDachaPayload.images" 
+              v-model:video="editDachaPayload.video"
+              @uploading="mediaUploading = $event"
+            />
+          </div>
+
+          <div class="input-field">
+            <FeatureSelector v-model="editDachaPayload.features" />
+          </div>
+        </div>
+        
+        <div class="sheet-actions mt-4">
+          <button 
+            class="primary-btn w-full mb-3" 
+            @click="saveEditedDacha" 
+            :disabled="mediaUploading"
+          >
+            {{ mediaUploading ? "Fayl yuklanmoqda..." : "Saqlash" }}
+          </button>
+          <button class="cancel-btn w-full mt-2" @click="closeEditDachaModal">Ortga</button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Booking Delete Modal (The "Message" Modal) -->
+    <transition name="fade">
+      <div v-if="showDeleteBookingMessage" class="sheet-overlay" @click.self="showDeleteBookingMessage = false">
+        <div class="bottom-sheet z-super-top" @click.stop>
+          <div class="sheet-handle"></div>
+          <h3 class="sheet-header danger-text">Bandlikni o'chirish</h3>
+          <p class="text-center text-muted mb-4">Ushbu band qilingan kunlarni rostan ham o'chirmoqchimisiz?</p>
+          <div class="sheet-actions">
+            <button class="danger-btn w-full mb-3" @click="deleteBookingConfirm">🗑️ O'chirish</button>
+            <button class="cancel-btn w-full" @click="cancel">Bekor qilish</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <div
+      class="page"
     v-for="dacha in dachas"
     :key="dacha._id"
     @click.self="activeDay = null"
@@ -31,8 +114,8 @@
           <div class="line"></div>
         </div>
         <div v-if="activeMenu === dacha._id" class="menu-drop">
-          <button @click="editDacha(dacha)">O'zgartirish</button>
-          <button @click="deleteDacha(dacha._id)">O'chirish</button>
+          <button @click.stop="editDacha(dacha)">O'zgartirish</button>
+          <button @click.stop="deleteDacha(dacha._id)">O'chirish</button>
         </div>
         <button class="primary-btn" @click="showBookingModal(dacha._id)">
           Band qilish
@@ -111,89 +194,9 @@
            </div>
         </div>
       </transition>
-      <!-- Action Bar ends here -->
+  <!-- Action Bar ends here -->
     </div>
   </div>
-
-  <!-- MODALS (Extracted outside v-for to prevent duplication) -->
-  <transition name="fade">
-    <div v-if="showDeleteDachaMessage" class="sheet-overlay" @click.self="showDeleteDachaMessage = false"></div>
-  </transition>
-  <transition name="slide-up">
-    <div v-if="showDeleteDachaMessage" class="bottom-sheet" style="z-index: 10000;">
-      <div class="sheet-handle"></div>
-      <h3 class="sheet-header" style="color: #fca5a5;">Dachani O'chirish</h3>
-      <p class="sheet-desc" style="color: #94a3b8; text-align: center; margin-bottom: 16px; font-size: 13px;">Dacha va unga tegishli barcha ma'lumotlar bilan nima qilishni xohlaysiz?</p>
-      
-      <div class="sheet-actions">
-        <button class="primary-btn w-full mb-3" @click="deleteConfirm('keep')">🗄️ Tarixda saqlash</button>
-        <button class="danger-btn w-full mb-3" style="background:#dc2626; color:white; border:none; border-radius:14px; min-height:48px; font-weight:600;" @click="deleteConfirm('full')">🗑️ O'chirish</button>
-        <button class="cancel-btn w-full mt-2" @click="cancel">Bekor qilish</button>
-      </div>
-    </div>
-  </transition>
-
-  <div
-    class="message"
-    v-if="showDeleteBookingMessage"
-    @click.self="showDeleteBookingMessage = false"
-  >
-    <div class="message-modal">
-      <h2>Ushbu band qilingan kunlarni o'chirmoqchimisiz ?</h2>
-      <div class="btnbox">
-        <button class="delete prev" @click="deleteBookingConfirm">
-          O'chirish
-        </button>
-        <button class="cancel" @click="cancel">Ortga</button>
-      </div>
-    </div>
-  </div>
-
-  <transition name="fade">
-    <div v-if="showEditDachaModal" class="sheet-overlay" @click.self="closeEditDachaModal"></div>
-  </transition>
-  <transition name="slide-up">
-    <div v-if="showEditDachaModal" class="bottom-sheet" style="z-index: 10000; min-height: 50vh;">
-      <div class="sheet-handle" @click="closeEditDachaModal"></div>
-      <h3 class="sheet-header">Dachani tahrirlash</h3>
-      
-      <div style="display:flex; flex-direction:column; gap: 12px; margin-top: 16px;">
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Nomi</label>
-          <input class="modern-input" type="text" v-model="editDachaPayload.name" />
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Manzil (Manzil Namangan, Nanay bo'lsa kiriting)</label>
-          <input class="modern-input" type="text" v-model="editDachaPayload.location" placeholder="Nanay, Namangan" />
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Media (Rasm va Video)</label>
-          <MediaDropzone 
-            v-model:images="editDachaPayload.images" 
-            v-model:video="editDachaPayload.video"
-            @uploading="mediaUploading = $event"
-          />
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <FeatureSelector v-model="editDachaPayload.features" />
-        </div>
-      </div>
-      
-      <div class="sheet-actions" style="margin-top: 24px;">
-        <button 
-          class="primary-btn w-full mb-3" 
-          @click="saveEditedDacha" 
-          :disabled="mediaUploading"
-        >
-          {{ mediaUploading ? "Fayl yuklanmoqda..." : "Saqlash" }}
-        </button>
-        <button class="cancel-btn w-full mt-2" @click="closeEditDachaModal">Ortga</button>
-      </div>
-    </div>
-  </transition>
 
   <p v-if="loading" class="loading">Yuklanmoqda...</p>
   <Booking
@@ -404,9 +407,10 @@ export default {
       return first === 0 ? 6 : first - 1;
     },
     deleteDacha(id) {
-      this.activeMenu = null;
       this.showDeleteDachaMessage = true;
       this.selectDeleteDacha = id;
+      // Close menu after a tiny delay to ensure modal state is processed
+      setTimeout(() => { this.activeMenu = null; }, 50);
     },
     async deleteConfirm(modeStr) {
       let data = await api.delete("/dacha/" + this.selectDeleteDacha + "?mode=" + modeStr);
@@ -700,6 +704,124 @@ export default {
 }
 .menu-drop button:active {
   background: rgba(255,255,255,0.1);
+}
+
+/* All Bookings Modal */
+.allBookings {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.allBookingModal {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 500px;
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+.allBookingModal .header {
+  display: grid;
+  grid-template-columns: 2fr 2fr 2fr 1fr;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 12px;
+  padding: 0 8px;
+}
+.allBookingModal .items {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.allBookingModal .item {
+  display: grid;
+  grid-template-columns: 2fr 2fr 2fr 1fr;
+  align-items: center;
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.allBookingModal .item:last-child {
+  border-bottom: none;
+}
+.allBookingModal .name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.allBookingModal .date p, .allBookingModal .price p {
+  font-size: 12px;
+}
+.allBookingModal .iconbox {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.allBookingModal .iconbox div {
+  cursor: pointer;
+  font-size: 16px;
+}
+.allBookingModal .bottom {
+  margin-top: 20px;
+}
+
+.dachas-container {
+  min-height: 100%;
+}
+
+.z-super-top {
+  z-index: 100005 !important;
+}
+
+.modal-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-field label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.text-center { text-align: center; }
+.text-muted { color: #94a3b8; font-size: 13px; line-height: 1.4; }
+.danger-text { color: #fca5a5; }
+.mb-4 { margin-bottom: 16px; }
+.mt-4 { margin-top: 16px; }
+
+.danger-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  min-height: 48px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.danger-btn:active {
+  transform: scale(0.95);
+  background: #b91c1c;
 }
 </style>
 

@@ -248,7 +248,7 @@ export default {
   left: 0;
 }
 .sheet-content {
-  max-height: 50vh;
+  max-height: 70dvh;
   overflow-y: auto;
   padding: 4px;
 }
