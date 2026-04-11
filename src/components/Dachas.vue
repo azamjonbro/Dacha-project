@@ -276,6 +276,7 @@ export default {
       showEditDachaModal: false,
       editDachaPayload: { _id: null, name: "", location: "", images: [], video: "", features: [] },
       mediaUploading: false,
+      showDeleteDachaMessage: false,
       showDeleteBookingMessage: false,
       isCreate: "create",
       deleteBookingId: null,
