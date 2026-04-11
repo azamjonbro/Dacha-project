@@ -1,15 +1,15 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: "https://dacha.techinfo.uz/api",
-  baseURL:"http://localhost:4000/api",
+  baseURL: "https://dacha.techinfo.uz/api",
+  // baseURL:"http://localhost:4000/api",
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-/* REQUEST INTERCEPTOR */
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
