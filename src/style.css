@@ -20,8 +20,20 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Subtle Modern Scrollbar */
 ::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 body {
@@ -379,10 +391,11 @@ input::placeholder {
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
   padding: 24px;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom));
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-  border-top: 1px solid var(--border-color);
-  /* Appears from bottom logic is usually dynamically handled via vue `<transition>` */
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+  box-shadow: 0 -20px 40px rgba(0,0,0,0.6);
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .sheet-handle {

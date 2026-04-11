@@ -202,7 +202,7 @@ export default {
   z-index: 9999;
 }
 .bottom-sheet {
-  max-height: 90vh;
+  max-height: 85dvh;
   overflow-y: auto;
 }
 .mb-2 { margin-bottom: 8px; }

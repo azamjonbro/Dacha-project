@@ -596,6 +596,9 @@ export default {
     0 0 0 1px rgba(255, 255, 255, 0.05) inset;
   position: relative;
   overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -680,6 +683,8 @@ export default {
 
 .modal-body-fancy {
   padding: 0 28px 28px 28px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .booking-receipt {
