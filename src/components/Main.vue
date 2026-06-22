@@ -336,7 +336,14 @@ export default {
     getStatusByDate(dacha, date) {
       for (const b of dacha.booking) {
         if (this.isInRange(date, b.startDate, b.endDate)) {
-          return { status: "band" };
+          if (b.status === "pending") {
+            return { status: "pending" };
+          }
+          const avans = b.prepayment || b.avans || 0;
+          if (avans <= 0) {
+            return { status: "no-prepayment" };
+          }
+          return { status: "confirmed" };
         }
       }
       return { status: "bosh" };

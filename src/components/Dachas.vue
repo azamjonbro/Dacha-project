@@ -494,7 +494,14 @@ export default {
       const booking = dacha.booking.find((b) => this.isInRange(date, b.startDate, b.endDate));
       if (booking) {
         // If it's explicitly pending, use pending. Otherwise default to confirmed.
-        return { status: booking.status === "pending" ? "pending" : "confirmed" };
+        if (booking.status === "pending") {
+          return { status: "pending" };
+        }
+        const avans = booking.prepayment || booking.avans || 0;
+        if (avans <= 0) {
+          return { status: "no-prepayment" };
+        }
+        return { status: "confirmed" };
       }
       return { status: "bosh" };
     },
@@ -604,6 +611,24 @@ export default {
 }
 
 .day.confirmed::after {
+  content: '✕';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 8px;
+  opacity: 0.6;
+}
+
+.day.no-prepayment {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(107, 33, 168, 0.3)) !important;
+  color: #e9d5ff !important;
+  border: 1.5px solid #a855f7 !important;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15), inset 0 0 8px rgba(168, 85, 247, 0.1);
+  font-weight: 700;
+  position: relative;
+}
+
+.day.no-prepayment::after {
   content: '✕';
   position: absolute;
   top: 2px;
