@@ -479,15 +479,11 @@ export default {
     },
 
     isInRange(date, from, to) {
-      const d = new Date(date);
-      const f = new Date(from);
-      const t = new Date(to);
-
-      const localD = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      const localF = new Date(f.getFullYear(), f.getMonth(), f.getDate());
-      const localT = new Date(t.getFullYear(), t.getMonth(), t.getDate());
-
-      return localD >= localF && localD <= localT;
+      if (!from || !to) return false;
+      const dStr = date;
+      const fStr = new Date(from).toISOString().slice(0, 10);
+      const tStr = new Date(to).toISOString().slice(0, 10);
+      return dStr >= fStr && dStr <= tStr;
     },
 
     getStatusByDate(dacha, date) {

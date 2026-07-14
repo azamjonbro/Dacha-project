@@ -20,9 +20,9 @@ export const formatDate = (dateStr, format = 'short') => {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return "-";
   
-  const day = d.getDate();
-  const monthIdx = d.getMonth();
-  const year = d.getFullYear();
+  const day = d.getUTCDate();
+  const monthIdx = d.getUTCMonth();
+  const year = d.getUTCFullYear();
 
   if (format === 'short') {
     return `${day} ${UZ_MONTHS_SHORT[monthIdx]}`;
@@ -32,7 +32,7 @@ export const formatDate = (dateStr, format = 'short') => {
     return `${day} ${UZ_MONTHS[monthIdx]}, ${year}`;
   }
 
-  return d.toLocaleDateString('uz-UZ');
+  return `${String(day).padStart(2, '0')}.${String(monthIdx + 1).padStart(2, '0')}.${year}`;
 };
 
 export default {
