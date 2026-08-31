@@ -101,7 +101,7 @@ function checkCaptcha() {
 
 async function submitLogin() {
   try {
-    const res = await fetch("https://dacha.techinfo.uz/api/auth/login", {
+    const res = await fetch("https://dacha.sds-max.uz/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
